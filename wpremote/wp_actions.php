@@ -33,6 +33,8 @@ if (!class_exists('WPRWPAction')) :
 			$info = array();
 			$this->siteinfo->basic($info);
 			##DISABLECACHE##
+			$this->process_deactivation_feedback($info);
+
 			$this->bvapi->pingbv('/bvapi/deactivate', $info);
 		}
 
@@ -41,6 +43,7 @@ if (!class_exists('WPRWPAction')) :
 			do_action('wpr_clear_dynsync_config');
 			##CLEARCACHECONFIG##
 			do_action('wpr_clear_bv_services_config');
+			do_action('wpr_clear_wp_2fa_config');
 			do_action('wpr_remove_bv_preload_include');
 			do_action('wpr_clear_php_error_config');
 		}
@@ -48,6 +51,16 @@ if (!class_exists('WPRWPAction')) :
 		public function clear_bv_services_config() {
 			$this->settings->deleteOption($this->bvinfo->services_option_name);
 		}
+
+		public function clear_wp_2fa_config() {
+			$meta_keys = array('wpr_2fa_enabled', 'wpr_2fa_secret');
+			foreach ($meta_keys as $meta_key) {
+					$this->settings->deleteMetaData('user', null, $meta_key, '', true);
+			}
+
+			$this->settings->deleteOption(WPRWP2FA::$wp_2fa_option);
+		}
+
 
 		##SOUNINSTALLFUNCTION##
 
@@ -57,6 +70,15 @@ if (!class_exists('WPRWPAction')) :
 				echo '<div style="max-width:150px;min-height:70px;margin:0 auto;text-align:center;position:relative;">
 					<a href='.esc_url($bvfooter['badgeurl']).' target="_blank" ><img src="'.esc_url(plugins_url($bvfooter['badgeimg'], __FILE__)).'" alt="'.esc_attr($bvfooter['badgealt']).'" /></a></div>';
 			}
+		}
+
+		private function process_deactivation_feedback(&$info) {
+			if (!isset($_GET['bv_deactivation_assets']) || !is_string($_GET['bv_deactivation_assets'])) {
+				return;
+			}
+
+			$deactivation_assets = $_GET['bv_deactivation_assets'];
+			$info['deactivation_feedback'] = base64_encode($deactivation_assets);
 		}
 
 		public function removeBVPreload() {

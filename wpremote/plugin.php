@@ -5,7 +5,7 @@ Plugin URI: https://wpremote.com
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>.
 Author: WP Remote
 Author URI: https://wpremote.com
-Version: 5.73
+Version: 5.77
 Network: True
  */
 
@@ -40,6 +40,8 @@ require_once dirname( __FILE__ ) . '/account.php';
 require_once dirname( __FILE__ ) . '/helper.php';
 require_once dirname( __FILE__ ) . '/wp_2fa/wp_2fa.php';
 
+require_once dirname( __FILE__ ) . '/wp_login_whitelabel.php';
+
 ##WPCACHEMODULE##
 
 
@@ -56,8 +58,10 @@ register_uninstall_hook(__FILE__, array('WPRWPAction', 'uninstall'));
 register_activation_hook(__FILE__, array($wp_action, 'activate'));
 register_deactivation_hook(__FILE__, array($wp_action, 'deactivate'));
 
+
 add_action('wp_footer', array($wp_action, 'footerHandler'), 100);
 add_action('wpr_clear_bv_services_config', array($wp_action, 'clear_bv_services_config'));
+
 ##SOADDUNINSTALLACTION##
 
 ##DISABLE_OTHER_OPTIMIZATION_PLUGINS##
@@ -77,6 +81,7 @@ if (is_admin()) {
 	}
 	add_filter('plugin_action_links', array($wpadmin, 'settingsLink'), 10, 2);
 	add_action('admin_head', array($wpadmin, 'removeAdminNotices'), 3);
+	##POPUP_ON_DEACTIVATION##
 	add_action('admin_notices', array($wpadmin, 'activateWarning'));
 	add_action('admin_enqueue_scripts', array($wpadmin, 'wprsecAdminMenu'));
 	##ALPURGECACHEFUNCTION##
@@ -190,14 +195,14 @@ if ((array_key_exists('bvplugname', $_REQUEST)) && ($_REQUEST['bvplugname'] == "
 		if ($bvinfo->isProtectModuleEnabled()) {
 			require_once dirname( __FILE__ ) . '/protect/protect.php';
 			//For backward compatibility.
-			WPRProtect_V573::$settings = new WPRWPSettings();
-			WPRProtect_V573::$db = new WPRWPDb();
-			WPRProtect_V573::$info = new WPRInfo(WPRProtect_V573::$settings);
+			WPRProtect_V577::$settings = new WPRWPSettings();
+			WPRProtect_V577::$db = new WPRWPDb();
+			WPRProtect_V577::$info = new WPRInfo(WPRProtect_V577::$settings);
 
-			add_action('wpr_clear_pt_config', array('WPRProtect_V573', 'uninstall'));
+			add_action('wpr_clear_pt_config', array('WPRProtect_V577', 'uninstall'));
 
 			if ($bvinfo->isActivePlugin()) {
-				WPRProtect_V573::init(WPRProtect_V573::MODE_WP);
+				WPRProtect_V577::init(WPRProtect_V577::MODE_WP);
 			}
 		}
 
@@ -236,3 +241,15 @@ if ((array_key_exists('bvplugname', $_REQUEST)) && ($_REQUEST['bvplugname'] == "
 
 	##THIRDPARTYCACHINGMODULE##
 }
+
+if (WPRWP2FA::isEnabled($bvsettings)) {
+	$wp_2fa = new WPRWP2FA();
+	$wp_2fa->init();
+}
+
+if (!empty($bvinfo->getLPWhitelabelInfo())) {
+	$wp_login_whitelabel = new WPRWPLoginWhitelabel();
+	$wp_login_whitelabel->init();
+}
+
+add_action('wpr_clear_wp_2fa_config', array($wp_action, 'clear_wp_2fa_config'));

@@ -10,7 +10,8 @@ if (!class_exists('WPRInfo')) :
 		public $badgeinfo = 'wprbadge';
 		public $ip_header_option = 'wpripheader';
 		public $brand_option = 'bv_whitelabel_infos';
-		public $version = '5.73';
+		public $wp_lp_whitelabel_option = 'wprLpWhitelabelConf';
+		public $version = '5.77';
 		public $webpage = 'https://wpremote.com';
 		public $appurl = 'https://app.wpremote.com';
 		public $slug = 'wpremote/plugin.php';
@@ -135,6 +136,11 @@ if (!class_exists('WPRInfo')) :
 		public function getPluginsWhitelabelInfos() {
 			$whitelabel_infos = $this->settings->getOption($this->brand_option);
 			return is_array($whitelabel_infos) ? $whitelabel_infos : array();
+		}
+
+		public function getLPWhitelabelInfo() {
+			$infos = $this->settings->getOption($this->wp_lp_whitelabel_option);
+			return is_array($infos) ? $infos : array();
 		}
 
 		public function getPluginsWhitelabelInfoByTitle() {

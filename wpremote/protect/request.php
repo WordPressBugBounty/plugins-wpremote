@@ -1,8 +1,8 @@
 <?php
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtectRequest_V573')) :
-class WPRProtectRequest_V573 {
+if (!class_exists('WPRProtectRequest_V577')) :
+class WPRProtectRequest_V577 {
 	public $ip;
 	public $host = '';
 	public $uri;
@@ -18,8 +18,8 @@ class WPRProtectRequest_V573 {
 	public $raw_body = '';
 	public $files;
 	public $respcode;
-	public $status = WPRProtectRequest_V573::STATUS_ALLOWED;
-	public $category = WPRProtectRequest_V573::CATEGORY_NORMAL;
+	public $status = WPRProtectRequest_V577::STATUS_ALLOWED;
+	public $category = WPRProtectRequest_V577::CATEGORY_NORMAL;
 
 	public $wp_user;
 
@@ -45,7 +45,7 @@ class WPRProtectRequest_V573 {
 	const CATEGORY_GLOBAL_BOT_BLOCKED = 90;
 
 	public function __construct($ip_header, $config) {
-		$this->ip = WPRProtectUtils_V573::getIP($ip_header);
+		$this->ip = WPRProtectUtils_V577::getIP($ip_header);
 		$this->timestamp = time();
 		$this->get_params = $_GET;
 		$this->cookies = $_COOKIE;
@@ -118,7 +118,7 @@ class WPRProtectRequest_V573 {
 
 		if ($this->can_decode_json) {
 			if ($this->getContentType() === "application/json" && !empty($this->raw_body)) {
-				$_json_params = WPRProtectUtils_V573::safeDecodeJSON($this->raw_body,
+				$_json_params = WPRProtectUtils_V577::safeDecodeJSON($this->raw_body,
 						true, $this->max_json_decode_depth);
 				if (isset($_json_params)) {
 					$this->json_params['JSON'] = $_json_params;
@@ -129,15 +129,15 @@ class WPRProtectRequest_V573 {
 
 	public static function blacklistedCategories() {
 		return array(
-			WPRProtectRequest_V573::CATEGORY_BOT_BLOCKED,
-			WPRProtectRequest_V573::CATEGORY_COUNTRY_BLOCKED,
-			WPRProtectRequest_V573::CATEGORY_USER_BLACKLISTED,
-			WPRProtectRequest_V573::CATEGORY_GLOBAL_BOT_BLOCKED
+			WPRProtectRequest_V577::CATEGORY_BOT_BLOCKED,
+			WPRProtectRequest_V577::CATEGORY_COUNTRY_BLOCKED,
+			WPRProtectRequest_V577::CATEGORY_USER_BLACKLISTED,
+			WPRProtectRequest_V577::CATEGORY_GLOBAL_BOT_BLOCKED
 		);
 	}
 
 	public static function whitelistedCategories() {
-		return array(WPRProtectRequest_V573::CATEGORY_WHITELISTED);
+		return array(WPRProtectRequest_V577::CATEGORY_WHITELISTED);
 	}
 
 	public function setRespCode($code) {
