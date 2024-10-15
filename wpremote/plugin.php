@@ -5,7 +5,7 @@ Plugin URI: https://wpremote.com
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>.
 Author: WP Remote
 Author URI: https://wpremote.com
-Version: 5.77
+Version: 5.81
 Network: True
  */
 
@@ -166,6 +166,15 @@ if ((array_key_exists('bvplugname', $_REQUEST)) && ($_REQUEST['bvplugname'] == "
 					$apbct->settings['forms__contact_forms_test'] = 0;
 				}
 			});
+
+			#handling of Akismet plugin
+			add_filter('akismet_get_api_key', function($api_key) { return null; }, PHP_INT_MAX);
+
+			#handling of Formidable Antispam
+			add_filter('frm_validate_entry', function($errors, $values, $args) {
+				unset($errors['spam']);
+				return $errors;
+			}, PHP_INT_MAX, 3);
 		} else {
 			define('WPRBASEPATH', plugin_dir_path(__FILE__));
 
@@ -195,14 +204,14 @@ if ((array_key_exists('bvplugname', $_REQUEST)) && ($_REQUEST['bvplugname'] == "
 		if ($bvinfo->isProtectModuleEnabled()) {
 			require_once dirname( __FILE__ ) . '/protect/protect.php';
 			//For backward compatibility.
-			WPRProtect_V577::$settings = new WPRWPSettings();
-			WPRProtect_V577::$db = new WPRWPDb();
-			WPRProtect_V577::$info = new WPRInfo(WPRProtect_V577::$settings);
+			WPRProtect_V581::$settings = new WPRWPSettings();
+			WPRProtect_V581::$db = new WPRWPDb();
+			WPRProtect_V581::$info = new WPRInfo(WPRProtect_V581::$settings);
 
-			add_action('wpr_clear_pt_config', array('WPRProtect_V577', 'uninstall'));
+			add_action('wpr_clear_pt_config', array('WPRProtect_V581', 'uninstall'));
 
 			if ($bvinfo->isActivePlugin()) {
-				WPRProtect_V577::init(WPRProtect_V577::MODE_WP);
+				WPRProtect_V581::init(WPRProtect_V581::MODE_WP);
 			}
 		}
 

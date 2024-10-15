@@ -1,8 +1,8 @@
 <?php
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtectUtils_V577')) :
-class WPRProtectUtils_V577 {
+if (!class_exists('WPRProtectUtils_V581')) :
+class WPRProtectUtils_V581 {
 	public static function getIP($ip_header) {
 		$ip = null;
 
@@ -126,7 +126,7 @@ class WPRProtectUtils_V577 {
 			foreach ($objects as $object) {
 				if ($object != "." && $object != "..") {
 					if (is_dir($dir . "/" . $object) && !is_link($dir . "/" . $object)) {
-						WPRProtectUtils_V577::rrmdir($dir . "/" . $object);
+						WPRProtectUtils_V581::rrmdir($dir . "/" . $object);
 					} else {
 						unlink($dir . "/" . $object);
 					}
@@ -141,7 +141,7 @@ class WPRProtectUtils_V577 {
 
 		if (is_array($val)) {
 			foreach ($val as $e) {
-				$length += WPRProtectUtils_V577::getLength($e);
+				$length += WPRProtectUtils_V581::getLength($e);
 			}
 
 			return $length;
