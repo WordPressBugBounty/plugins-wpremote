@@ -11,7 +11,7 @@ if (!class_exists('WPRInfo')) :
 		public $ip_header_option = 'wpripheader';
 		public $brand_option = 'bv_whitelabel_infos';
 		public $wp_lp_whitelabel_option = 'wprLpWhitelabelConf';
-		public $version = '5.81';
+		public $version = '5.85';
 		public $webpage = 'https://wpremote.com';
 		public $appurl = 'https://app.wpremote.com';
 		public $slug = 'wpremote/plugin.php';
@@ -65,7 +65,7 @@ if (!class_exists('WPRInfo')) :
 			$encoded_url = base64_encode($bvsiteinfo->siteurl());
 			$secret = WPRRecover::defaultSecret($this->settings);
 
-			return base64_encode("v1:".$secret.":".$encoded_url);
+			return base64_encode("v2:".$secret.":".$encoded_url.":".$this->plugname);
 		}
 
 		public function getDefaultSecret() {
@@ -87,7 +87,7 @@ if (!class_exists('WPRInfo')) :
 
 		public static function getRequestID() {
 			if (!defined("BV_REQUEST_ID")) {
-				define("BV_REQUEST_ID", uniqid(mt_rand()));
+				define("BV_REQUEST_ID", uniqid(mt_rand())); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
 			}
 			return BV_REQUEST_ID;
 		}
@@ -108,6 +108,7 @@ if (!class_exists('WPRInfo')) :
 		}
 
 		public function canWhiteLabel($slug = NULL) {
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
 			if (array_key_exists("bv_override_global_whitelabel", $_REQUEST)) {
 				return false;
 			}
@@ -115,6 +116,7 @@ if (!class_exists('WPRInfo')) :
 				$_REQUEST["bv_override_plugin_whitelabel"] === $slug) {
 				return false;
 			}
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 			return true;
 		}
 

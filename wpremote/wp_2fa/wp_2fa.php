@@ -59,7 +59,7 @@ class WPRWP2FA {
 		$has_2fa = get_user_meta($user->ID, WPRWP2FA::FLAG_META_KEY, true);
 
 		if ('1' === $has_2fa) {
-			if (empty($_POST['twofa_code'])) {
+			if (empty($_POST['twofa_code'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 				wp_send_json_success(array('twofa_enabled' => true));
 				exit;
 			} else {
@@ -85,7 +85,7 @@ class WPRWP2FA {
 					return new WP_Error('invalid_2fa_configuration', __('Please contact your administrator to login.'));
 				}
 
-				$submitted_code = sanitize_text_field($_POST['twofa_code']);
+				$submitted_code = sanitize_text_field(wp_unslash($_POST['twofa_code'])); //phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 				if (is_string($submitted_code) && ctype_digit($submitted_code) &&
 						true === WPRWP2FAAuthenticator::verifyCode($secret, $submitted_code)) {

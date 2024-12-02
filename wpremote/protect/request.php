@@ -1,8 +1,9 @@
 <?php
+
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtectRequest_V581')) :
-class WPRProtectRequest_V581 {
+if (!class_exists('WPRProtectRequest_V585')) :
+class WPRProtectRequest_V585 {
 	public $ip;
 	public $host = '';
 	public $uri;
@@ -18,8 +19,8 @@ class WPRProtectRequest_V581 {
 	public $raw_body = '';
 	public $files;
 	public $respcode;
-	public $status = WPRProtectRequest_V581::STATUS_ALLOWED;
-	public $category = WPRProtectRequest_V581::CATEGORY_NORMAL;
+	public $status = WPRProtectRequest_V585::STATUS_ALLOWED;
+	public $category = WPRProtectRequest_V585::CATEGORY_NORMAL;
 
 	public $wp_user;
 
@@ -45,12 +46,12 @@ class WPRProtectRequest_V581 {
 	const CATEGORY_GLOBAL_BOT_BLOCKED = 90;
 
 	public function __construct($ip_header, $config) {
-		$this->ip = WPRProtectUtils_V581::getIP($ip_header);
+		$this->ip = WPRProtectUtils_V585::getIP($ip_header);
 		$this->timestamp = time();
-		$this->get_params = $_GET;
+		$this->get_params = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$this->cookies = $_COOKIE;
-		$this->post_params = $_POST;
-		$this->files = $_FILES;
+		$this->post_params = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$this->files = $_FILES; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		if (array_key_exists('cangetrawbody', $config) && is_bool($config['cangetrawbody'])) {
 			$this->can_get_raw_body = $config['cangetrawbody'];
@@ -68,11 +69,12 @@ class WPRProtectRequest_V581 {
 			$this->max_json_decode_depth = $config['maxjsondecodedepth'];
 		}
 
-		if (!empty($_FILES)) {
-			foreach ($_FILES as $input => $file) {
+		if (!empty($_FILES)) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			foreach ($_FILES as $input => $file) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 				$this->file_names[$input] = $file['name'];
 			}
 		}
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		if (is_array($_SERVER)) {
 			foreach ($_SERVER as $key => $value) {
 				if (strpos($key, 'HTTP_') === 0) {
@@ -83,30 +85,32 @@ class WPRProtectRequest_V581 {
 					$this->headers[$header] = $value;
 				}
 			}
+			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			if (array_key_exists('CONTENT_TYPE', $_SERVER)) {
-				$this->headers['Content-Type'] = $_SERVER['CONTENT_TYPE'];
+				$this->headers['Content-Type'] = WPRHelper::unslashIfWPLoaded($_SERVER['CONTENT_TYPE']);
 			}
 			if (array_key_exists('CONTENT_LENGTH', $_SERVER)) {
-				$this->headers['Content-Length'] = $_SERVER['CONTENT_LENGTH'];
+				$this->headers['Content-Length'] = WPRHelper::unslashIfWPLoaded($_SERVER['CONTENT_LENGTH']);
 			}
 			if (array_key_exists('REFERER', $_SERVER)) {
-				$this->headers['Referer'] = $_SERVER['REFERER'];
+				$this->headers['Referer'] = WPRHelper::unslashIfWPLoaded($_SERVER['REFERER']);
 			}
 			if (array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
-				$this->headers['User-Agent'] = $_SERVER['HTTP_USER_AGENT'];
+				$this->headers['User-Agent'] = WPRHelper::unslashIfWPLoaded($_SERVER['HTTP_USER_AGENT']);
 			}
 
 			if (array_key_exists('Host', $this->headers)) {
 				$this->host = $this->headers['Host'];
 			} elseif (array_key_exists('SERVER_NAME', $_SERVER)) {
-				$this->host = $_SERVER['SERVER_NAME'];
+				$this->host = WPRHelper::unslashIfWPLoaded($_SERVER['SERVER_NAME']);
 			}
 
 			$this->method = array_key_exists('REQUEST_METHOD', $_SERVER)
-				? $_SERVER['REQUEST_METHOD'] : 'GET';
-			$this->uri = array_key_exists('REQUEST_URI', $_SERVER) ? $_SERVER['REQUEST_URI'] : '';
+				? WPRHelper::unslashIfWPLoaded($_SERVER['REQUEST_METHOD']) : 'GET';
+			$this->uri = array_key_exists('REQUEST_URI', $_SERVER) ? WPRHelper::unslashIfWPLoaded($_SERVER['REQUEST_URI']) : '';
 			$_uri = parse_url($this->uri);
 			$this->path = (is_array($_uri) && array_key_exists('path', $_uri)) ? $_uri['path']  : $this->uri;
+			// phpcs:enable
 		}
 
 		if ($this->can_get_raw_body) {
@@ -118,7 +122,7 @@ class WPRProtectRequest_V581 {
 
 		if ($this->can_decode_json) {
 			if ($this->getContentType() === "application/json" && !empty($this->raw_body)) {
-				$_json_params = WPRProtectUtils_V581::safeDecodeJSON($this->raw_body,
+				$_json_params = WPRProtectUtils_V585::safeDecodeJSON($this->raw_body,
 						true, $this->max_json_decode_depth);
 				if (isset($_json_params)) {
 					$this->json_params['JSON'] = $_json_params;
@@ -129,15 +133,15 @@ class WPRProtectRequest_V581 {
 
 	public static function blacklistedCategories() {
 		return array(
-			WPRProtectRequest_V581::CATEGORY_BOT_BLOCKED,
-			WPRProtectRequest_V581::CATEGORY_COUNTRY_BLOCKED,
-			WPRProtectRequest_V581::CATEGORY_USER_BLACKLISTED,
-			WPRProtectRequest_V581::CATEGORY_GLOBAL_BOT_BLOCKED
+			WPRProtectRequest_V585::CATEGORY_BOT_BLOCKED,
+			WPRProtectRequest_V585::CATEGORY_COUNTRY_BLOCKED,
+			WPRProtectRequest_V585::CATEGORY_USER_BLACKLISTED,
+			WPRProtectRequest_V585::CATEGORY_GLOBAL_BOT_BLOCKED
 		);
 	}
 
 	public static function whitelistedCategories() {
-		return array(WPRProtectRequest_V581::CATEGORY_WHITELISTED);
+		return array(WPRProtectRequest_V585::CATEGORY_WHITELISTED);
 	}
 
 	public function setRespCode($code) {
@@ -272,7 +276,7 @@ class WPRProtectRequest_V581 {
 
 	public function getRequestID() {
 		if (!defined("BV_REQUEST_ID")) {
-			define("BV_REQUEST_ID", uniqid(mt_rand()));
+			define("BV_REQUEST_ID", uniqid(mt_rand())); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
 		}
 
 		return BV_REQUEST_ID;
@@ -280,7 +284,8 @@ class WPRProtectRequest_V581 {
 
 	public function getServerValue($key) {
 		if (isset($_SERVER) && array_key_exists($key, $_SERVER)) {
-			return $_SERVER[$key];
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+			return WPRHelper::unslashIfWPLoaded($_SERVER[$key]);
 		}
 		return false;
 	}

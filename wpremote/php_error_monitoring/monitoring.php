@@ -145,7 +145,7 @@ if (!class_exists('WPRWPPHPErrorMonitoring')) :
 			$data["error_message"] = $message;
 			$data["error_line"] = $line;
 			$data["error_file"] = $file;
-			$uri = array_key_exists('REQUEST_URI', $_SERVER) ? $_SERVER['REQUEST_URI'] : '';
+			$uri = array_key_exists('REQUEST_URI', $_SERVER) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
 			$data["request_path"] = parse_url($uri, PHP_URL_PATH);
 			$data["request_id"] = WPRInfo::getRequestID();
 

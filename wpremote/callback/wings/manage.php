@@ -282,16 +282,6 @@ class BVManageCallback extends BVCallbackBase {
 				return array('status' => 'Done');
 			}
 		} else {
-			$resp = array("wp_update_core", function_exists('wp_update_core'));
-			if (function_exists('wp_update_core')) {
-				$result = wp_update_core($to_update);
-				if (is_wp_error($result)) {
-					return array('status' => "Error", "message" => $this->getError($result));
-				} else {
-					return array('status' => 'Done');
-				}
-			}
-
 			$resp = array("WP_Upgrader", class_exists('WP_Upgrader'));
 			if (class_exists('WP_Upgrader')) {
 				$upgrader = new WP_Upgrader();

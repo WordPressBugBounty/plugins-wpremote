@@ -25,7 +25,7 @@ class WPRWPAdmin {
 	}
 
 	function removeAdminNotices() {
-		if (array_key_exists('page', $_REQUEST) && $_REQUEST['page'] == $this->bvinfo->plugname) {
+		if (array_key_exists('page', $_REQUEST) && $_REQUEST['page'] == $this->bvinfo->plugname) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			remove_all_actions('admin_notices');
 			remove_all_actions('all_admin_notices');
 		}
@@ -34,21 +34,24 @@ class WPRWPAdmin {
 	public function initHandler() {
 		if (!current_user_can('activate_plugins'))
 			return;
+		$bvnonce = isset($_REQUEST['bvnonce']) ? sanitize_text_field(wp_unslash($_REQUEST['bvnonce'])) : '';
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using custom sanitization
+		$blogvaultkey = isset($_REQUEST['blogvaultkey']) ? WPRAccount::sanitizeKey(wp_unslash($_REQUEST['blogvaultkey'])) : '';
+		$page = isset($_REQUEST['page']) ? sanitize_text_field(wp_unslash($_REQUEST['page'])) : '';
 
-		if (array_key_exists('bvnonce', $_REQUEST) &&
-				wp_verify_nonce($_REQUEST['bvnonce'], "bvnonce") &&
-				array_key_exists('blogvaultkey', $_REQUEST) &&
-				(strlen(WPRAccount::sanitizeKey($_REQUEST['blogvaultkey'])) == 64) &&
-				(array_key_exists('page', $_REQUEST) &&
-				$_REQUEST['page'] == $this->bvinfo->plugname)) {
-			$keys = str_split($_REQUEST['blogvaultkey'], 32);
+		if ($bvnonce && wp_verify_nonce($bvnonce, "bvnonce") &&
+			$blogvaultkey && strlen($blogvaultkey) == 64 &&
+			($page && $page === $this->bvinfo->plugname)) {
+			$keys = str_split($blogvaultkey, 32);
 			WPRAccount::addAccount($this->settings, $keys[0], $keys[1]);
+
 			if (array_key_exists('redirect', $_REQUEST)) {
-				$location = $_REQUEST['redirect'];
+				$location = esc_url_raw(wp_unslash($_REQUEST['redirect']));
 				wp_redirect($this->bvinfo->appUrl()."/dash/redir?q=".urlencode($location));
 				exit();
 			}
 		}
+
 		if ($this->bvinfo->isActivateRedirectSet()) {
 			$this->settings->updateOption($this->bvinfo->plug_redirect, 'no');
 			##ACTIVATEREDIRECTCODE##
@@ -169,6 +172,7 @@ class WPRWPAdmin {
 		$bvnonce = wp_create_nonce("bvnonce");
 		$public = WPRAccount::getApiPublicKey($this->settings);
 		$secret = WPRRecover::defaultSecret($this->settings);
+		$server_ip = isset($_SERVER["SERVER_ADDR"]) ? sanitize_text_field(wp_unslash($_SERVER["SERVER_ADDR"])) : null;
 		$tags = "<input type='hidden' name='url' value='".esc_attr($this->siteinfo->wpurl())."'/>\n".
 				"<input type='hidden' name='homeurl' value='".esc_attr($this->siteinfo->homeurl())."'/>\n".
 				"<input type='hidden' name='siteurl' value='".esc_attr($this->siteinfo->siteurl())."'/>\n".
@@ -176,7 +180,7 @@ class WPRWPAdmin {
 				"<input type='hidden' name='plug' value='".esc_attr($this->bvinfo->plugname)."'/>\n".
 				"<input type='hidden' name='adminurl' value='".esc_attr($this->mainUrl())."'/>\n".
 				"<input type='hidden' name='bvversion' value='".esc_attr($this->bvinfo->version)."'/>\n".
-	 			"<input type='hidden' name='serverip' value='".esc_attr($_SERVER["SERVER_ADDR"])."'/>\n".
+				"<input type='hidden' name='serverip' value='".esc_attr($server_ip)."'/>\n".
 				"<input type='hidden' name='abspath' value='".esc_attr(ABSPATH)."'/>\n".
 				"<input type='hidden' name='secret' value='".esc_attr($secret)."'/>\n".
 				"<input type='hidden' name='public' value='".esc_attr($public)."'/>\n".
@@ -205,11 +209,15 @@ class WPRWPAdmin {
 	}
 
 	public function adminPage() {
-		if (isset($_REQUEST['bvnonce']) && wp_verify_nonce( $_REQUEST['bvnonce'], 'bvnonce' )) {
+		$bvnonce = isset($_REQUEST['bvnonce']) ? sanitize_text_field(wp_unslash($_REQUEST['bvnonce'])) : '';
+		if ($bvnonce && wp_verify_nonce($bvnonce, 'bvnonce')) {
 			$info = array();
 			$this->siteinfo->basic($info);
-			$this->bvapi->pingbv('/bvapi/disconnect', $info, $_REQUEST['pubkey']);
-			WPRAccount::remove($this->settings, $_REQUEST['pubkey']);
+			if (!empty($_REQUEST['pubkey'])) {
+				$pubkey = WPRAccount::sanitizeKey(wp_unslash($_REQUEST['pubkey'])); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$this->bvapi->pingbv('/bvapi/disconnect', $info, $pubkey);
+				WPRAccount::remove($this->settings, $pubkey);
+			}
 		}
 		if (WPRAccount::isConfigured($this->settings)) {
 			if (!isset($_REQUEST['add_account'])) {
