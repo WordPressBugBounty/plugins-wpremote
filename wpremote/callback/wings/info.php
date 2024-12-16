@@ -284,7 +284,7 @@ class BVInfoCallback extends BVCallbackBase {
 	public function getHostInfo() {
 		$host_info = $_SERVER;
 		if (function_exists('php_uname')) {
-			$host_info['PHP_SERVER_NAME'] = php_uname('\n');
+			$host_info['PHP_SERVER_NAME'] = php_uname();
 		}
 
 		if (isset($_SERVER['SERVER_ADDR']) && function_exists('gethostbyaddr')) {

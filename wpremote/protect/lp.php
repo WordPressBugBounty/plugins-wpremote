@@ -1,15 +1,15 @@
 <?php
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtectLP_V585')) :
-class WPRProtectLP_V585 {
+if (!class_exists('WPRProtectLP_V588')) :
+class WPRProtectLP_V588 {
 	private $ip;
 	private $time;
 	private $ipstore;
 	private $logger;
 	private $brand_name;
 
-	private $mode              = WPRProtectLP_V585::MODE_DISABLED;
+	private $mode              = WPRProtectLP_V588::MODE_DISABLED;
 	private $captcha_limit     = 3;
 	private $temp_block_limit  = 10;
 	private $block_all_limit   = 100;
@@ -17,7 +17,7 @@ class WPRProtectLP_V585 {
 	private $success_login_gap = 1800;
 	private $all_blocked_gap   = 1800;
 
-	private $category          = WPRProtectLP_V585::CATEGORY_ALLOWED;
+	private $category          = WPRProtectLP_V588::CATEGORY_ALLOWED;
 	private $username          = '';
 	private $message           = '';
 
@@ -46,8 +46,8 @@ class WPRProtectLP_V585 {
 	private function __construct($request, $config, $brand_name) {
 		$this->ip = $request->getIP();
 		$this->brand_name = $brand_name;
-		$this->ipstore = new WPRProtectIpstore_V585();
-		$this->logger = new WPRProtectLogger_V585(WPRProtectLP_V585::TABLE_NAME);
+		$this->ipstore = new WPRProtectIpstore_V588();
+		$this->logger = new WPRProtectLogger_V588(WPRProtectLP_V588::TABLE_NAME);
 		$this->time = strtotime(gmdate("Y-m-d H:i:s"));
 
 		if (is_array($config)) {
@@ -90,7 +90,7 @@ class WPRProtectLP_V585 {
 	}
 
 	public static function uninstall() {
-		WPRProtect_V585::$db->dropBVTable(WPRProtectLP_V585::TABLE_NAME);
+		WPRProtect_V588::$db->dropBVTable(WPRProtectLP_V588::TABLE_NAME);
 	}
 
 	public function init() {
@@ -102,7 +102,7 @@ class WPRProtectLP_V585 {
 	}
 
 	private function getCaptchaLink() {
-		$account = WPRAccount::apiPublicAccount(WPRProtect_V585::$settings);
+		$account = WPRAccount::apiPublicAccount(WPRProtect_V588::$settings);
 
 		$url = $account->authenticatedUrl('/captcha/solve');
 		$url .= "&adminurl=".base64_encode(get_admin_url());
@@ -111,11 +111,11 @@ class WPRProtectLP_V585 {
 	}
 
 	private function getAllowLoginsTransient() {
-		return WPRProtect_V585::$settings->getTransient('bvlp_allow_logins');
+		return WPRProtect_V588::$settings->getTransient('bvlp_allow_logins');
 	}
 
 	private function getBlockLoginsTransient() {
-		return WPRProtect_V585::$settings->getTransient('bvlp_block_logins');
+		return WPRProtect_V588::$settings->getTransient('bvlp_block_logins');
 	}
 
 	private function terminateTemplate() {
@@ -141,11 +141,11 @@ class WPRProtectLP_V585 {
 	}
 
 	private function isProtecting() {
-		return $this->mode === WPRProtectLP_V585::MODE_PROTECT;
+		return $this->mode === WPRProtectLP_V588::MODE_PROTECT;
 	}
 
 	private function isActive() {
-		return $this->mode !== WPRProtectLP_V585::MODE_DISABLED;
+		return $this->mode !== WPRProtectLP_V588::MODE_DISABLED;
 	}
 
 	private function isBlacklistedIP() {
@@ -157,11 +157,11 @@ class WPRProtectLP_V585 {
 	}
 
 	private function isUnBlockedIP() {
-		$transient_name = WPRProtectLP_V585::UNBLOCK_IP_TRANSIENT_PREFIX . $this->ip;
-		$attempts = WPRProtect_V585::$settings->getTransient($transient_name);
+		$transient_name = WPRProtectLP_V588::UNBLOCK_IP_TRANSIENT_PREFIX . $this->ip;
+		$attempts = WPRProtect_V588::$settings->getTransient($transient_name);
 
 		if ($attempts && $attempts > 0) {
-			WPRProtect_V585::$settings->setTransient($transient_name, $attempts - 1, 600 * $attempts);
+			WPRProtect_V588::$settings->setTransient($transient_name, $attempts - 1, 600 * $attempts);
 			return true;
 		}
 
@@ -170,7 +170,7 @@ class WPRProtectLP_V585 {
 
 	private function isLoginBlocked() {
 		if ($this->getAllowLoginsTransient() ||
-				($this->getLoginCount(WPRProtectLP_V585::LOGIN_STATUS_FAILURE, null, $this->all_blocked_gap) < $this->block_all_limit)) {
+				($this->getLoginCount(WPRProtectLP_V588::LOGIN_STATUS_FAILURE, null, $this->all_blocked_gap) < $this->block_all_limit)) {
 			return false;
 		}
 
@@ -193,7 +193,7 @@ class WPRProtectLP_V585 {
 
 	private function terminateLogin() {
 		$this->message = 'Login Blocked';
-		$this->log(WPRProtectLP_V585::LOGIN_STATUS_BLOCKED);
+		$this->log(WPRProtectLP_V588::LOGIN_STATUS_BLOCKED);
 		if ($this->isProtecting()) {
 			header("Cache-Control: no-cache, no-store, must-revalidate");
 			header("Pragma: no-cache");
@@ -206,28 +206,28 @@ class WPRProtectLP_V585 {
 
 	public function loginInit($user, $username = '', $password = '') {
 		if ($this->isUnBlockedIP()) {
-			$this->category = WPRProtectLP_V585::CATEGORY_UNBLOCKED;
+			$this->category = WPRProtectLP_V588::CATEGORY_UNBLOCKED;
 		} else {
-			$failed_attempts = $this->getLoginCount(WPRProtectLP_V585::LOGIN_STATUS_FAILURE,
+			$failed_attempts = $this->getLoginCount(WPRProtectLP_V588::LOGIN_STATUS_FAILURE,
 																							$this->ip, $this->failed_login_gap);
 
 			if ($this->isWhitelistedIP()) {
-				$this->category = WPRProtectLP_V585::CATEGORY_BYPASSED;
-			} elseif (WPRProtectUtils_V585::isPrivateIP($this->ip)) {
-				$this->category = WPRProtectLP_V585::CATEGORY_PRIVATEIP;
+				$this->category = WPRProtectLP_V588::CATEGORY_BYPASSED;
+			} elseif (WPRProtectUtils_V588::isPrivateIP($this->ip)) {
+				$this->category = WPRProtectLP_V588::CATEGORY_PRIVATEIP;
 			} elseif ($this->isBlacklistedIP()) {
-				$this->category = WPRProtectLP_V585::CATEGORY_BLACKLISTED;
+				$this->category = WPRProtectLP_V588::CATEGORY_BLACKLISTED;
 				$this->terminateLogin();
 			} elseif ($this->isKnownLogin()) {
-				$this->category = WPRProtectLP_V585::CATEGORY_BYPASSED;
+				$this->category = WPRProtectLP_V588::CATEGORY_BYPASSED;
 			} elseif ($this->isLoginBlocked()) {
-				$this->category = WPRProtectLP_V585::CATEGORY_ALL_BLOCKED;
+				$this->category = WPRProtectLP_V588::CATEGORY_ALL_BLOCKED;
 				$this->terminateLogin();
 			} elseif ($failed_attempts >= $this->temp_block_limit) {
-				$this->category = WPRProtectLP_V585::CATEGORY_TEMP_BLOCK;
+				$this->category = WPRProtectLP_V588::CATEGORY_TEMP_BLOCK;
 				$this->terminateLogin();
 			} elseif ($failed_attempts >= $this->captcha_limit) {
-				$this->category = WPRProtectLP_V585::CATEGORY_CAPTCHA_BLOCK;
+				$this->category = WPRProtectLP_V588::CATEGORY_CAPTCHA_BLOCK;
 				$this->terminateLogin();
 			}
 		}
@@ -241,30 +241,31 @@ class WPRProtectLP_V585 {
 
 	public function loginFailed($username) {
 		$this->username = $username;
-		$this->log(WPRProtectLP_V585::LOGIN_STATUS_FAILURE);
+		$this->log(WPRProtectLP_V588::LOGIN_STATUS_FAILURE);
 	}
 
 	public function loginSuccess($username) {
 		$this->username = $username;
 		$this->message = 'Login Success';
-		$this->log(WPRProtectLP_V585::LOGIN_STATUS_SUCCESS);
+		$this->log(WPRProtectLP_V588::LOGIN_STATUS_SUCCESS);
 	}
 
 	private function isKnownLogin() {
-		return $this->getLoginCount(WPRProtectLP_V585::LOGIN_STATUS_SUCCESS,
+		return $this->getLoginCount(WPRProtectLP_V588::LOGIN_STATUS_SUCCESS,
 																$this->ip, $this->success_login_gap) > 0;
 	}
-	private function getLoginCount($status, $ip, $gap) {
-		$table = WPRProtect_V585::$db->getBVTable(WPRProtectLP_V585::TABLE_NAME);
-		$query_str = "SELECT COUNT(*) as count FROM %i WHERE status = %d AND time > %d";
-		$query_args = array($table, $status, ($this->time - $gap));
 
+	private function getLoginCount($status, $ip, $gap) {
+		$table = WPRProtect_V588::$db->getBVTable(WPRProtectLP_V588::TABLE_NAME);
+		$query_str = "SELECT COUNT(*) as count from `$table` WHERE status=%d && time > %d";
+		$query_args = array($status, ($this->time - $gap));
+
+		$query = WPRProtect_V588::$db->prepare($query_str, $query_args);
 		if ($ip) {
-			$query_str .= " AND ip = %s";
-			$query_args[] = $ip;
+			$query .= WPRProtect_V588::$db->prepare(" && ip=%s", $ip);
 		}
 
-		$rows = WPRProtect_V585::$db->getResult($query_str, $query_args);
+		$rows = WPRProtect_V588::$db->getResult($query);
 		if (!$rows) {
 			return 0;
 		}

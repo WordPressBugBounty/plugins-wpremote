@@ -5,7 +5,7 @@ Plugin URI: https://wpremote.com
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>.
 Author: WP Remote
 Author URI: https://wpremote.com
-Version: 5.85
+Version: 5.88
 Network: True
 License: GPLv2 or later
 License URI: [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
@@ -191,6 +191,17 @@ if ((array_key_exists('bvplugname', $_REQUEST)) && ($_REQUEST['bvplugname'] == "
 					return $form;
 				}, PHP_INT_MAX, 1);
 			}
+
+			#handling of Ninja Form plugin
+			add_filter('ninja_forms_pre_validate_field_settings', function($field_settings) {
+				if (isset($field_settings['type']) && in_array($field_settings['type'], array('recaptcha', 'spam'), true)) {
+					$field_settings['type'] = null;
+				}
+
+				return $field_settings;
+			}, PHP_INT_MAX, 1);
+
+			add_filter('ninja_forms_run_action_type_recaptcha', '__return_false', PHP_INT_MAX);
 		}
 
 		if (array_key_exists('bv_ignr_eml', $_REQUEST)) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -199,6 +210,25 @@ if ((array_key_exists('bvplugname', $_REQUEST)) && ($_REQUEST['bvplugname'] == "
 				$email_data['abort_email'] = true;
 				return $email_data;
 			}, PHP_INT_MAX, 1);
+
+			#handling of Ninja Form's Email
+			add_filter('ninja_forms_action_email_send', '__return_true', PHP_INT_MAX);
+
+			#handling of Contact Form 7's Email
+			add_action('wpcf7_before_send_mail', function($contact_form, &$abort) { $abort = true; }, PHP_INT_MAX, 2);
+
+			#handling of WP Form's Email
+			add_filter('wpforms_entry_email', '__return_false', PHP_INT_MAX);
+
+			#handling of Formidable Form's Email
+			add_filter('frm_send_email', '__return_false', PHP_INT_MAX);
+
+			#handling of Forminator Form's Email
+			foreach (['poll', 'quiz', 'form'] as $type) {
+				add_filter("forminator_{$type}_get_admin_email_recipients", function() {
+					return [];
+				}, PHP_INT_MAX);
+			}
 		}
 
 		if (!array_key_exists('bv_ignr_frm_cptch', $_REQUEST) && !array_key_exists('bv_ignr_eml', $_REQUEST)) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -230,14 +260,14 @@ if ((array_key_exists('bvplugname', $_REQUEST)) && ($_REQUEST['bvplugname'] == "
 		if ($bvinfo->isProtectModuleEnabled()) {
 			require_once dirname( __FILE__ ) . '/protect/protect.php';
 			//For backward compatibility.
-			WPRProtect_V585::$settings = new WPRWPSettings();
-			WPRProtect_V585::$db = new WPRWPDb();
-			WPRProtect_V585::$info = new WPRInfo(WPRProtect_V585::$settings);
+			WPRProtect_V588::$settings = new WPRWPSettings();
+			WPRProtect_V588::$db = new WPRWPDb();
+			WPRProtect_V588::$info = new WPRInfo(WPRProtect_V588::$settings);
 
-			add_action('wpr_clear_pt_config', array('WPRProtect_V585', 'uninstall'));
+			add_action('wpr_clear_pt_config', array('WPRProtect_V588', 'uninstall'));
 
 			if ($bvinfo->isActivePlugin()) {
-				WPRProtect_V585::init(WPRProtect_V585::MODE_WP);
+				WPRProtect_V588::init(WPRProtect_V588::MODE_WP);
 			}
 		}
 

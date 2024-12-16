@@ -1,8 +1,8 @@
 <?php
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtectUtils_V585')) :
-class WPRProtectUtils_V585 {
+if (!class_exists('WPRProtectUtils_V588')) :
+class WPRProtectUtils_V588 {
 	public static function getIP($ip_header) {
 		$ip = null;
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash
@@ -134,7 +134,7 @@ class WPRProtectUtils_V585 {
 
 		if (is_array($val)) {
 			foreach ($val as $e) {
-				$length += WPRProtectUtils_V585::getLength($e);
+				$length += WPRProtectUtils_V588::getLength($e);
 			}
 
 			return $length;

@@ -12,10 +12,7 @@ class WPRWPDb {
 
 	public function prepare($query, $args) {
 		global $wpdb;
-		if (!empty($args)) {
-			return $wpdb->prepare($query, $args); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		}
-		return $query;
+		return $wpdb->prepare($query, $args); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	}
 
 	public function getSiteId() {
@@ -23,33 +20,29 @@ class WPRWPDb {
 		return $wpdb->siteid;
 	}
 
-	public function getResult($query, $args = array(), $obj = ARRAY_A) {
+	public function getResult($query, $obj = ARRAY_A) {
 		global $wpdb;
-		$prepared_query = $this->prepare($query, $args);
-		return $wpdb->get_results($prepared_query, $obj); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return $wpdb->get_results($query, $obj); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	}
 
-	public function query($query, $args = array()) {
+	public function query($query) {
 		global $wpdb;
-		$prepared_query = $this->prepare($query, $args);
-		return $wpdb->query($prepared_query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return $wpdb->query($query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	}
 
-	public function getVar($query, $args = array(), $col = 0, $row = 0) {
+	public function getVar($query, $col = 0, $row = 0) {
 		global $wpdb;
-		$prepared_query = $this->prepare($query, $args);
-		return $wpdb->get_var($prepared_query, $col, $row); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return $wpdb->get_var($query, $col, $row); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	}
 
-	public function getCol($query, $args = array(), $col = 0) {
+	public function getCol($query, $col = 0) {
 		global $wpdb;
-		$prepared_query = $this->prepare($query, $args);
-		return $wpdb->get_col($prepared_query, $col); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return $wpdb->get_col($query, $col); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	}
 
 	public function getAutoIncrement($table_name) {
-		$query = "SELECT `AUTO_INCREMENT` FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s";
-		$results = $this->getResult($query, array($table_name), ARRAY_A);
+		$query = "SELECT `AUTO_INCREMENT` FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '$table_name'";
+		$results = $this->getResult($query, ARRAY_A);
 		$auto_increment = null;
 		if (empty($results)) {
 			return $auto_increment;
@@ -66,20 +59,21 @@ class WPRWPDb {
 	}
 
 	public function showTables() {
-		$tables = $this->getResult("SHOW TABLES", array(), ARRAY_N);
+		$tables = $this->getResult("SHOW TABLES", ARRAY_N);
 		return array_map(array($this, 'tableName'), $tables);
 	}
+
 
 	public function showTableStatus() {
 		return $this->getResult("SHOW TABLE STATUS");
 	}
 
 	public function tableKeys($table) {
-		return $this->getResult("SHOW KEYS FROM %i;", array($table));
+		return $this->getResult("SHOW KEYS FROM $table;");
 	}
 
 	public function showDbVariables($variable) {
-		$variables = $this->getResult("SHOW VARIABLES LIKE %s", array('%' . $variable . '%'));
+		$variables = $this->getResult("Show variables like '%$variable%' ;");
 		$result = array();
 		foreach ($variables as $variable) {
 			$result[$variable["Variable_name"]] = $variable["Value"];
@@ -100,11 +94,11 @@ class WPRWPDb {
 	}
 
 	public function repairTable($table) {
-		return $this->getResult("REPAIR TABLE %i;", array($table));
+		return $this->getResult("REPAIR TABLE $table;");
 	}
 
 	public function showTableCreate($table) {
-		return $this->getVar("SHOW CREATE TABLE $table", array(), 1);
+		return $this->getVar("SHOW CREATE TABLE $table;", 1);
 	}
 
 	public function rowsCount($table) {
@@ -152,21 +146,17 @@ class WPRWPDb {
 	}
 
 	public function getTableContent($table, $fields = '*', $filter = '', $limit = 0, $offset = 0) {
-		$query = "SELECT $fields FROM $table $filter";
-		$args = array();
-		if ($limit > 0) {
-			$query .= " LIMIT %d";
-			$args[] = $limit;
-		}
-		if ($offset > 0) {
-			$query .= " OFFSET %d";
-			$args[] = $offset;
-		}
-		return $this->getResult($query, $args);
+		$query = "SELECT $fields from $table $filter";
+		if ($limit > 0)
+			$query .= " LIMIT $limit";
+		if ($offset > 0)
+			$query .= " OFFSET $offset";
+		$rows = $this->getResult($query);
+		return $rows;
 	}
 
 	public function isTablePresent($table) {
-		return ($this->getVar("SHOW TABLES LIKE %s", array($table)) === $table);
+		return ($this->getVar("SHOW TABLES LIKE '$table'") === $table);
 	}
 
 	public function getCharsetCollate() {
@@ -185,7 +175,7 @@ class WPRWPDb {
 	public function truncateBVTable($name) {
 		$table = $this->getBVTable($name);
 		if ($this->isTablePresent($table)) {
-			return $this->query("TRUNCATE TABLE %i;", array($table));
+			return $this->query("TRUNCATE TABLE $table;");
 		} else {
 			return false;
 		}
@@ -194,7 +184,7 @@ class WPRWPDb {
 	public function deleteBVTableContent($name, $filter = "") {
 		$table = $this->getBVTable($name);
 		if ($this->isTablePresent($table)) {
-			return $this->query("DELETE FROM %i $filter", array($table));
+			return $this->query("DELETE FROM $table $filter;");
 		} else {
 			return false;
 		}
@@ -203,7 +193,7 @@ class WPRWPDb {
 	public function dropBVTable($name) {
 		$table = $this->getBVTable($name);
 		if ($this->isTablePresent($table)) {
-			$this->query("DROP TABLE IF EXISTS %i;", array($table));
+			$this->query("DROP TABLE IF EXISTS $table;");
 		}
 		return !$this->isTablePresent($table);
 	}
@@ -227,7 +217,7 @@ class WPRWPDb {
 	public function deleteRowsFromtable($name, $count = 1) {
 		$table = $this->getBVTable($name);
 		if ($this->isTablePresent($table)) {
-			return $this->getResult("DELETE FROM %i LIMIT %d;", array($table, $count));
+			return $this->getResult("DELETE FROM $table LIMIT $count;");
 		} else {
 			return false;
 		}

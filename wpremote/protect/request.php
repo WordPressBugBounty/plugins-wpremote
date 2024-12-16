@@ -2,8 +2,8 @@
 
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtectRequest_V585')) :
-class WPRProtectRequest_V585 {
+if (!class_exists('WPRProtectRequest_V588')) :
+class WPRProtectRequest_V588 {
 	public $ip;
 	public $host = '';
 	public $uri;
@@ -19,8 +19,8 @@ class WPRProtectRequest_V585 {
 	public $raw_body = '';
 	public $files;
 	public $respcode;
-	public $status = WPRProtectRequest_V585::STATUS_ALLOWED;
-	public $category = WPRProtectRequest_V585::CATEGORY_NORMAL;
+	public $status = WPRProtectRequest_V588::STATUS_ALLOWED;
+	public $category = WPRProtectRequest_V588::CATEGORY_NORMAL;
 
 	public $wp_user;
 
@@ -46,7 +46,7 @@ class WPRProtectRequest_V585 {
 	const CATEGORY_GLOBAL_BOT_BLOCKED = 90;
 
 	public function __construct($ip_header, $config) {
-		$this->ip = WPRProtectUtils_V585::getIP($ip_header);
+		$this->ip = WPRProtectUtils_V588::getIP($ip_header);
 		$this->timestamp = time();
 		$this->get_params = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$this->cookies = $_COOKIE;
@@ -122,7 +122,7 @@ class WPRProtectRequest_V585 {
 
 		if ($this->can_decode_json) {
 			if ($this->getContentType() === "application/json" && !empty($this->raw_body)) {
-				$_json_params = WPRProtectUtils_V585::safeDecodeJSON($this->raw_body,
+				$_json_params = WPRProtectUtils_V588::safeDecodeJSON($this->raw_body,
 						true, $this->max_json_decode_depth);
 				if (isset($_json_params)) {
 					$this->json_params['JSON'] = $_json_params;
@@ -133,15 +133,15 @@ class WPRProtectRequest_V585 {
 
 	public static function blacklistedCategories() {
 		return array(
-			WPRProtectRequest_V585::CATEGORY_BOT_BLOCKED,
-			WPRProtectRequest_V585::CATEGORY_COUNTRY_BLOCKED,
-			WPRProtectRequest_V585::CATEGORY_USER_BLACKLISTED,
-			WPRProtectRequest_V585::CATEGORY_GLOBAL_BOT_BLOCKED
+			WPRProtectRequest_V588::CATEGORY_BOT_BLOCKED,
+			WPRProtectRequest_V588::CATEGORY_COUNTRY_BLOCKED,
+			WPRProtectRequest_V588::CATEGORY_USER_BLACKLISTED,
+			WPRProtectRequest_V588::CATEGORY_GLOBAL_BOT_BLOCKED
 		);
 	}
 
 	public static function whitelistedCategories() {
-		return array(WPRProtectRequest_V585::CATEGORY_WHITELISTED);
+		return array(WPRProtectRequest_V588::CATEGORY_WHITELISTED);
 	}
 
 	public function setRespCode($code) {

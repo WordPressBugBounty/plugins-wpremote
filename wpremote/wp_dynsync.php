@@ -255,23 +255,16 @@ class BVWPDynSync {
 	}
 
 	/* WOOCOMMERCE SUPPORT FUNCTIONS BEGINS FROM HERE*/
-
 	function handle_order_items($order_id, $type = null) {
 		$this->add_db_event('woocommerce_order_items', array('order_id' => $order_id, 'msg_type' => 'delete'));
 		$itemmeta_table = $this->db->getWPTable('woocommerce_order_itemmeta');
 		$items_table = $this->db->getWPTable('woocommerce_order_items');
-
-		$query = "SELECT imt.meta_id FROM %i imt INNER JOIN %i it WHERE imt.order_item_id = it.order_item_id AND it.order_id = %d";
-
-		$args = array($itemmeta_table, $items_table, $order_id);
-
+		$query = "SELECT {$itemmeta_table}.meta_id FROM {$itemmeta_table} INNER JOIN {$items_table} WHERE {$itemmeta_table}.order_item_id = {$items_table}.order_item_id AND {$items_table}.order_id = {$order_id}";
 		if (!empty($type)) {
-			$query .= " AND it.order_item_type = %s";
-			$args[] = $type;
+			$query .= " AND {$items_table}.order_item_type = '{$type}'";
 		}
-
 		$meta_ids = array();
-		foreach ($this->db->getResult($query, $args) as $row) {
+		foreach ($this->db->getResult($query) as $row) {
 			if (!in_array($row['meta_id'], $meta_ids, true)) {
 				$meta_ids[] = $row['meta_id'];
 				$this->add_db_event('woocommerce_order_itemmeta', array('meta_id' => $row['meta_id'], 'msg_type' => 'delete'));
@@ -365,13 +358,7 @@ class BVWPDynSync {
 	function woocommerce_delete_order_items_handler($postid) {
 		$meta_ids = array();
 		$order_item_ids = array();
-		$query = "SELECT wom.meta_id, woi.order_item_id
-			FROM %i wom JOIN %i woi
-			ON woi.order_item_id = wom.order_item_id
-			WHERE woi.order_id = %d";
-
-		$args = array($this->db->getWPTable('woocommerce_order_itemmeta'), $this->db->getWPTable('woocommerce_order_items'), $postid);
-		foreach ($this->db->getResult($query, $args) as $row) {
+		foreach( $this->db->getResult("SELECT {$this->db->dbprefix()}woocommerce_order_itemmeta.meta_id, {$this->db->dbprefix()}woocommerce_order_items.order_item_id FROM {$this->db->dbprefix()}woocommerce_order_items JOIN {$this->db->dbprefix()}woocommerce_order_itemmeta ON {$this->db->dbprefix()}woocommerce_order_items.order_item_id = {$this->db->dbprefix()}woocommerce_order_itemmeta.order_item_id WHERE {$this->db->dbprefix()}woocommerce_order_items.order_id = '{$postid}'") as $key => $row) {
 			if (!in_array($row['meta_id'], $meta_ids, true)) {
 				$meta_ids[] = $row['meta_id'];
 				$this->add_db_event('woocommerce_order_itemmeta', array('meta_id' => $row['meta_id'], 'msg_type' => 'delete'));
@@ -521,9 +508,7 @@ class BVWPDynSync {
 	function woocommerce_product_update_handler($product_id, $meta_key = null) {
 		$this->add_db_event('wc_product_meta_lookup', array('product_id' => $product_id, 'msg_type' => 'edit'));
 		if(!empty($meta_key)) {
-			$args = array($this->db->getWPTable('postmeta'), $product_id, $meta_key);
-			$query = "SELECT meta_id FROM %i WHERE post_id = %d AND meta_key = %s";
-			$meta_ids = $this->db->getResult($query, $args);
+			$meta_ids = $this->db->getResult("SELECT meta_id FROM {$this->db->dbprefix()}postmeta WHERE post_id = {$product_id} AND meta_key = '{$meta_key}';");
 			$this->postmeta_action_handler(array_column($meta_ids, 'meta_id'), null, $meta_key);
 		}
 	}
@@ -544,10 +529,8 @@ class BVWPDynSync {
 		if (!$post_id) {
 			return;
 		}
-		$table = $this->db->dbprefix() . 'posts';
-		$query = "SELECT ID FROM %i WHERE post_type = 'shop_order_refund' AND post_parent = %d";
-		$results = $this->db->getResult($query, array($table, $post_id));
-		foreach ($results as $post) {
+		$results = $this->db->getResult($this->db->prepare("SELECT ID FROM {$this->db->dbprefix()}posts WHERE post_type = 'shop_order_refund' AND post_parent = %d", $post_id));
+		foreach ( $results as $post ) {
 			$this->add_db_event('posts', array('ID' => $post['ID']));
 		}
 	}
@@ -557,11 +540,9 @@ class BVWPDynSync {
 	}
 
 	function woocommerce_payment_token_set_default_handler($token_id, $token) {
-		$query = "SELECT user_id FROM %i WHERE token_id = %d";
-		$args = array($this->db->getWPTable('woocommerce_payment_tokens'), $token_id);
-		$results = $this->db->getResult($query, $args);
+		$results = $this->db->getResult($this->db->prepare("SELECT user_id FROM {$this->db->dbprefix()}woocommerce_payment_tokens WHERE token_id = %d", $token_id));
 		$user_ids = array();
-		foreach ($results as $tok) {
+		foreach ( $results as $tok ){
 			if (!in_array($tok['user_id'], $user_ids, true)) {
 				$user_ids[] = $tok['user_id'];
 				$this->add_db_event('woocommerce_payment_tokens', array('user_id' => $tok['user_id']));

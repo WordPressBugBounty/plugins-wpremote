@@ -6,7 +6,7 @@ Donate link: https://wpremote.com/
 Requires at least: 4.0
 Tested up to: 6.7
 Requires PHP: 5.6.0
-Stable tag: 5.85
+Stable tag: 5.88
 License: GPLv2 or later
 License URI: [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -41,6 +41,10 @@ Having an account is necessary to use our service, and your email address serves
 In addition, we may use your email address to notify you about any changes or updates that we make to our service, as well as any new features or services that we may offer to help enhance your user experience.
 
 == CHANGELOG ==
+= 5.88 =
+* Fix: Resolved compatibility issues with WordPress versions below 6.2.
+* Tweak: Added support for PHP 8.4
+
 = 5.85 =
 * New: Added Gravity Forms support in Form Testing.
 * Tweak: Code Restructuring
