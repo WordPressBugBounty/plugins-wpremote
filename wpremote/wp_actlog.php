@@ -110,13 +110,13 @@ if (!class_exists('BVWPActLog')) :
 			$ip = '127.0.0.1';
 			if ($ipHeader && is_array($ipHeader)) {
 				if (array_key_exists($ipHeader['hdr'], $_SERVER)) {
-					$_ips = preg_split("/(,| |\t)/", wp_unslash($_SERVER[$ipHeader['hdr']])); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+					$_ips = preg_split("/(,| |\t)/", WPRHelper::getRawParam('SERVER', $ipHeader['hdr']));
 					if (array_key_exists(intval($ipHeader['pos']), $_ips)) {
 						$ip = $_ips[intval($ipHeader['pos'])];
 					}
 				}
 			} else if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
-				$ip = wp_unslash(sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])));
+				$ip = WPRHelper::getRawParam('SERVER', 'REMOTE_ADDR');
 			}
 
 			$ip = trim($ip);

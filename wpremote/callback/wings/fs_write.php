@@ -69,18 +69,18 @@ class BVFSWriteCallback extends BVCallbackBase {
 
 	public function removeDirs($dirs) {
 		$result = array();
-		$filesystem = WPRHelper::get_direct_filesystem();
 
-		foreach($dirs as $dir) {
+		foreach ($dirs as $dir) {
 			$dir_result = array();
 
-			if ($filesystem->is_dir($dir) && !is_link($dir)) {
+			if ((WPRWPFileSystem::getInstance()->isDir($dir) === true) && !is_link($dir)) {
 				if ($this->isEmptyDir($dir)) {
-					$dir_result['status'] = $filesystem->rmdir($dir);
+					$dir_result['status'] = WPRWPFileSystem::getInstance()->rmdir($dir);
 					if ($dir_result['status'] === false) {
 						$dir_result['error'] = "RMDIR_FAILED";
-						if (is_wp_error($filesystem->errors) && $filesystem->errors->has_errors()) {
-							$dir_result['fs_error'] = $filesystem->errors->get_error_message();
+						$fs_error = WPRWPFileSystem::getInstance()->checkForErrors();
+						if (isset($fs_error)) {
+							$dir_result['fs_error'] = $fs_error;
 						}
 					}
 				} else {
@@ -115,17 +115,17 @@ class BVFSWriteCallback extends BVCallbackBase {
 
 	public function doChmod($path_infos) {
 		$result = array();
-		$filesystem = WPRHelper::get_direct_filesystem();
 
-		foreach($path_infos as $path => $mode) {
+		foreach ($path_infos as $path => $mode) {
 			$path_result = array();
 
-			if ($filesystem->exists($path)) {
-				$path_result['status'] = $filesystem->chmod($path, $mode);
+			if (WPRWPFileSystem::getInstance()->exists($path) === true) {
+				$path_result['status'] = WPRWPFileSystem::getInstance()->chmod($path, $mode);
 				if ($path_result['status'] === false) {
 					$path_result['error'] = "CHMOD_FAILED";
-					if (is_wp_error($filesystem->errors) && $filesystem->errors->has_errors()) {
-						$path_result['fs_error'] = $filesystem->errors->get_error_message();
+					$fs_error = WPRWPFileSystem::getInstance()->checkForErrors();
+					if (isset($fs_error)) {
+						$path_result['fs_error'] = $fs_error;
 					}
 				}
 			} else {
@@ -223,19 +223,20 @@ class BVFSWriteCallback extends BVCallbackBase {
 		return $result;
 	}
 	// phpcs:enable
+
 	public function renameFiles($path_infos) {
 		$result = array();
-		$filesystem = WPRHelper::get_direct_filesystem();
 
 		foreach ($path_infos as $oldpath => $newpath) {
 			$action_result = array();
 
-			if ($filesystem->exists($oldpath)) {
-				$action_result['status'] = $filesystem->move($oldpath, $newpath, true);
+			if (WPRWPFileSystem::getInstance()->exists($oldpath)) {
+				$action_result['status'] = WPRWPFileSystem::getInstance()->move($oldpath, $newpath, true);
 				if ($action_result['status'] === false) {
 					$action_result['error'] = "RENAME_FAILED";
-					if (is_wp_error($filesystem->errors) && $filesystem->errors->has_errors()) {
-						$action_result['fs_error'] = $filesystem->errors->get_error_message();
+					$fs_error = WPRWPFileSystem::getInstance()->checkForErrors();
+					if (isset($fs_error)) {
+						$action_result['fs_error'] = $fs_error;
 					}
 				}
 			} else {
@@ -316,13 +317,12 @@ class BVFSWriteCallback extends BVCallbackBase {
 
 	public function writeContentToFile($content, $ofile) {
 		$result = array();
-		$filesystem = WPRHelper::get_direct_filesystem();
 
-		if ($filesystem->put_contents($ofile, $content) === false) {
+		if (WPRWPFileSystem::getInstance()->putContents($ofile, $content) === false) {
 			$result['error'] = 'UNABLE_TO_WRITE_TO_TMP_OFILE';
-
-			if (is_wp_error($filesystem->errors) && $filesystem->errors->has_errors()) {
-				$result['fs_error'] = $filesystem->errors->get_error_message();
+			$fs_error = WPRWPFileSystem::getInstance()->checkForErrors();
+			if (isset($fs_error)) {
+				$result['fs_error'] = $fs_error;
 			}
 		}
 

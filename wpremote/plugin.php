@@ -5,7 +5,7 @@ Plugin URI: https://wpremote.com
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>.
 Author: WP Remote
 Author URI: https://wpremote.com
-Version: 5.88
+Version: 5.91
 Network: True
 License: GPLv2 or later
 License URI: [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
@@ -40,6 +40,7 @@ require_once dirname( __FILE__ ) . '/wp_actions.php';
 require_once dirname( __FILE__ ) . '/info.php';
 require_once dirname( __FILE__ ) . '/account.php';
 require_once dirname( __FILE__ ) . '/helper.php';
+require_once dirname( __FILE__ ) . '/wp_file_system.php';
 require_once dirname( __FILE__ ) . '/wp_2fa/wp_2fa.php';
 
 require_once dirname( __FILE__ ) . '/wp_login_whitelabel.php';
@@ -110,25 +111,20 @@ if ($bvinfo->hasValidDBVersion()) {
 		$actlog->init();
 	}
 
-	if ($bvinfo->isServiceActive('maintenance_mode')) {
-		require_once dirname( __FILE__ ). '/maintenance/wp_maintenance.php';
-		$bvconfig = $bvinfo->config;
-		$maintenance = new BVWPMaintenance($bvconfig['maintenance_mode']);
-		$maintenance->init();
-	}
-
+	##MAINTENANCEMODULE##
 }
 
-if ((array_key_exists('bvplugname', $_REQUEST)) && ($_REQUEST['bvplugname'] == "wpremote")) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+if (WPRHelper::getRawParam('REQUEST', 'bvplugname') == "wpremote") {
 	require_once dirname( __FILE__ ) . '/callback/base.php';
 	require_once dirname( __FILE__ ) . '/callback/response.php';
 	require_once dirname( __FILE__ ) . '/callback/request.php';
 	require_once dirname( __FILE__ ) . '/recover.php';
 
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
-	$pubkey = isset($_REQUEST['pubkey']) ? WPRAccount::sanitizeKey(wp_unslash($_REQUEST['pubkey'])) : '';
+	$pubkey = WPRHelper::getRawParam('REQUEST', 'pubkey');
+	$pubkey = isset($pubkey) ? WPRAccount::sanitizeKey($pubkey) : '';
+	$rcvracc = WPRHelper::getRawParam('REQUEST', 'rcvracc');
 
-	if (array_key_exists('rcvracc', $_REQUEST)) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if (isset($rcvracc)) {
 		$account = WPRRecover::find($bvsettings, $pubkey);
 	} else {
 		$account = WPRAccount::find($bvsettings, $pubkey);
@@ -138,100 +134,13 @@ if ((array_key_exists('bvplugname', $_REQUEST)) && ($_REQUEST['bvplugname'] == "
 	$response = new BVCallbackResponse($request->bvb64cksize);
 
 	if ($request->authenticate() === 1) {
-		if (array_key_exists('bv_ignr_frm_cptch', $_REQUEST)) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			#handling of Contact Forms 7
-			add_filter('wpcf7_skip_spam_check', '__return_true', PHP_INT_MAX, 2);
+		$bv_frm_tstng = WPRHelper::getRawParam('REQUEST', 'bv_frm_tstng');
+		if (isset($bv_frm_tstng)) {
+			require_once dirname(__FILE__) . '/form_testing/form_testing.php';
+			$form_testing = new BVFormTesting($_REQUEST); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$form_testing->init();
 
-			#handling of Formidable plugin
-			add_filter('frm_is_field_hidden', '__return_true', PHP_INT_MAX, 3);
-
-			#handling of WP Forms plugin
-			add_filter('wpforms_process_bypass_captcha', '__return_true', PHP_INT_MAX, 3);
-
-			#handling of Forminator plugin
-			if (defined('WP_PLUGIN_DIR')) {
-				$abstractFrontActionFilePath = WP_PLUGIN_DIR . '/forminator/library/abstracts/abstract-class-front-action.php';
-				$frontActionFilePath = WP_PLUGIN_DIR . '/forminator/library/modules/custom-forms/front/front-action.php';
-
-				if (file_exists($abstractFrontActionFilePath) && file_exists($frontActionFilePath)) {
-					require_once $abstractFrontActionFilePath;
-					require_once $frontActionFilePath;
-					if (class_exists('Forminator_CForm_Front_Action')) {
-						Forminator_CForm_Front_Action::$hidden_fields[] = "bv-stripe-";
-					}
-				}
-			}
-
-			#handling of CleanTalk Antispam plugin
-			add_action('init', function() {
-				global $apbct;
-				if (isset($apbct) && is_object($apbct)) {
-					$apbct->settings['forms__contact_forms_test'] = 0;
-				}
-			});
-
-			#handling of Akismet plugin
-			add_filter('akismet_get_api_key', function($api_key) { return null; }, PHP_INT_MAX);
-
-			#handling of Formidable Antispam
-			add_filter('frm_validate_entry', function($errors, $values, $args) {
-				unset($errors['spam']); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				return $errors;
-			}, PHP_INT_MAX, 3);
-
-			#handling of Gravity Form plugin
-			if (isset($_REQUEST['form_id'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$form_id = sanitize_text_field(wp_unslash($_REQUEST['form_id'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				add_filter('gform_pre_validation_' . $form_id, function($form) {
-					foreach ($form['fields'] as &$field) {
-						if ($field['type'] === 'captcha') {
-							$field->visibility = 'hidden';
-						}
-					}
-					return $form;
-				}, PHP_INT_MAX, 1);
-			}
-
-			#handling of Ninja Form plugin
-			add_filter('ninja_forms_pre_validate_field_settings', function($field_settings) {
-				if (isset($field_settings['type']) && in_array($field_settings['type'], array('recaptcha', 'spam'), true)) {
-					$field_settings['type'] = null;
-				}
-
-				return $field_settings;
-			}, PHP_INT_MAX, 1);
-
-			add_filter('ninja_forms_run_action_type_recaptcha', '__return_false', PHP_INT_MAX);
-		}
-
-		if (array_key_exists('bv_ignr_eml', $_REQUEST)) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			#handling of Gravity Form's Email
-			add_filter('gform_pre_send_email', function($email_data) {
-				$email_data['abort_email'] = true;
-				return $email_data;
-			}, PHP_INT_MAX, 1);
-
-			#handling of Ninja Form's Email
-			add_filter('ninja_forms_action_email_send', '__return_true', PHP_INT_MAX);
-
-			#handling of Contact Form 7's Email
-			add_action('wpcf7_before_send_mail', function($contact_form, &$abort) { $abort = true; }, PHP_INT_MAX, 2);
-
-			#handling of WP Form's Email
-			add_filter('wpforms_entry_email', '__return_false', PHP_INT_MAX);
-
-			#handling of Formidable Form's Email
-			add_filter('frm_send_email', '__return_false', PHP_INT_MAX);
-
-			#handling of Forminator Form's Email
-			foreach (['poll', 'quiz', 'form'] as $type) {
-				add_filter("forminator_{$type}_get_admin_email_recipients", function() {
-					return [];
-				}, PHP_INT_MAX);
-			}
-		}
-
-		if (!array_key_exists('bv_ignr_frm_cptch', $_REQUEST) && !array_key_exists('bv_ignr_eml', $_REQUEST)) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		} else {
 			define('WPRBASEPATH', plugin_dir_path(__FILE__));
 
 
@@ -260,14 +169,14 @@ if ((array_key_exists('bvplugname', $_REQUEST)) && ($_REQUEST['bvplugname'] == "
 		if ($bvinfo->isProtectModuleEnabled()) {
 			require_once dirname( __FILE__ ) . '/protect/protect.php';
 			//For backward compatibility.
-			WPRProtect_V588::$settings = new WPRWPSettings();
-			WPRProtect_V588::$db = new WPRWPDb();
-			WPRProtect_V588::$info = new WPRInfo(WPRProtect_V588::$settings);
+			WPRProtect_V591::$settings = new WPRWPSettings();
+			WPRProtect_V591::$db = new WPRWPDb();
+			WPRProtect_V591::$info = new WPRInfo(WPRProtect_V591::$settings);
 
-			add_action('wpr_clear_pt_config', array('WPRProtect_V588', 'uninstall'));
+			add_action('wpr_clear_pt_config', array('WPRProtect_V591', 'uninstall'));
 
 			if ($bvinfo->isActivePlugin()) {
-				WPRProtect_V588::init(WPRProtect_V588::MODE_WP);
+				WPRProtect_V591::init(WPRProtect_V591::MODE_WP);
 			}
 		}
 

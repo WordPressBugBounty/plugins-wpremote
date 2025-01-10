@@ -173,6 +173,7 @@ if (!class_exists('BVCallbackRequest')) :
 
 					if (array_key_exists('memset', $in_params)) {
 						$val = intval($in_params['memset']);
+						// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Required for memory limit adjustment
 						@ini_set('memory_limit', $val.'M');
 					}
 
@@ -240,8 +241,7 @@ if (!class_exists('BVCallbackRequest')) :
 				return false;
 			}
 
-			$filesystem = WPRHelper::get_direct_filesystem();
-			$public_key_str = $filesystem->get_contents($key_file);
+			$public_key_str = WPRWPFileSystem::getInstance()->getContents($key_file);
 
 			$public_key = openssl_pkey_get_public($public_key_str);
 			if (!$public_key) {

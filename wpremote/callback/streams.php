@@ -84,9 +84,11 @@ class BVRespStream extends BVStream {
 	}
 
 	public function writeChunk($chunk) {
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- chunk should not be escaped
 		echo $this->bvboundry . "ckckckckck" . $chunk . $this->bvboundry . "ckckckckck";
 	}
 	public function endStream() {
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $this->bvboundry . "rerererere";
 
 		return array();

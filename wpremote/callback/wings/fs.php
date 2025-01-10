@@ -18,6 +18,13 @@ class BVFSCallback extends BVCallbackBase {
 		$absfile = ABSPATH.$relfile;
 		$fdata = array();
 		$fdata["filename"] = $relfile;
+
+		if (@is_readable($absfile) === false) {
+			$fdata["failed"] = true;
+			$fdata["error"] = "NOT_READABLE";
+			return $fdata;
+		}
+
 		$stats = @stat($absfile);
 		if ($stats) {
 			foreach (preg_grep('#size|uid|gid|mode|mtime#i', array_keys($stats)) as $key ) {
@@ -164,20 +171,19 @@ class BVFSCallback extends BVCallbackBase {
 
 	function getFilesContent($files, $withContent = true) {
 		$result = array();
-		$filesystem = WPRHelper::get_direct_filesystem();
 
 		foreach ($files as $file) {
 			$fdata = $this->fileStat($file);
 			$absfile = ABSPATH . $file;
 
-			if ($filesystem->is_dir($absfile) && !is_link($absfile)) {
+			if ((WPRWPFileSystem::getInstance()->isDir($absfile) === true) && !is_link($absfile)) {
 				$fdata['is_dir'] = true;
 			} else {
-				if (!$filesystem->is_readable($absfile)) {
+				if (isset($fdata["error"]) && $fdata["error"] === "NOT_READABLE") {
 					$fdata['error'] = 'file not readable';
 				} else {
 					if ($withContent === true) {
-						$content = $filesystem->get_contents($absfile);
+						$content = WPRWPFileSystem::getInstance()->getContents($absfile);
 						if ($content !== false) {
 							$fdata['content'] = $content;
 						} else {
@@ -187,10 +193,10 @@ class BVFSCallback extends BVCallbackBase {
 				}
 			}
 
-			if (is_wp_error($filesystem->errors) && $filesystem->errors->has_errors()) {
-				$fdata['fs_error'] = $filesystem->errors->get_error_message();
+			$fs_error = WPRWPFileSystem::getInstance()->checkForErrors();
+			if (isset($fs_error)) {
+				$fdata['fs_error'] = $fs_error;
 			}
-
 			$result[$file] = $fdata;
 		}
 
@@ -202,7 +208,7 @@ class BVFSCallback extends BVCallbackBase {
 		foreach ($files as $file) {
 			$fdata = $this->fileStat($file);
 			$absfile = ABSPATH.$file;
-			if (!is_readable($absfile)) {
+			if (isset($fdata["error"]) && $fdata["error"] === "NOT_READABLE") {
 				$result["missingfiles"][] = $file;
 				continue;
 			}
@@ -217,7 +223,7 @@ class BVFSCallback extends BVCallbackBase {
 	function uploadFiles($files, $offset = 0, $limit = 0, $bsize = 102400) {
 		$result = array();
 		foreach ($files as $file) {
-			if (!is_readable(ABSPATH.$file)) {
+			if (WPRWPFileSystem::getInstance()->isReadable(ABSPATH.$file) === false) {
 				$result["missingfiles"][] = $file;
 				continue;
 			}

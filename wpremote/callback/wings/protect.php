@@ -17,7 +17,7 @@ class BVProtectCallback extends BVCallbackBase {
 
 	public function serverConfig() {
 		return array(
-			'software' => isset($_SERVER['SERVER_SOFTWARE']) ? wp_unslash($_SERVER['SERVER_SOFTWARE']) : null, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			'software' => WPRHelper::getRawParam('SERVER', 'SERVER_SOFTWARE'),
 			'sapi' => (function_exists('php_sapi_name')) ? php_sapi_name() : false,
 			'has_apache_get_modules' => function_exists('apache_get_modules'),
 			'posix_getuid' => (function_exists('posix_getuid')) ? posix_getuid() : null,
@@ -40,7 +40,7 @@ class BVProtectCallback extends BVCallbackBase {
 	}
 
 	public function unBlockIP($ip, $attempts, $time) {
-		$transient_name = WPRProtectLP_V588::UNBLOCK_IP_TRANSIENT_PREFIX . $ip;
+		$transient_name = WPRProtectLP_V591::UNBLOCK_IP_TRANSIENT_PREFIX . $ip;
 		$this->settings->setTransient($transient_name, $attempts, $time);
 		return $this->settings->getTransient($transient_name);
 	}
@@ -57,7 +57,7 @@ class BVProtectCallback extends BVCallbackBase {
 			if ($headers && is_array($headers)) {
 				foreach($headers as $hdr) {
 					if (array_key_exists($hdr, $_SERVER)) {
-						$hdrsinfo[$hdr] = wp_unslash($_SERVER[$hdr]); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+						$hdrsinfo[$hdr] = WPRHelper::getRawParam('SERVER', $hdr);
 					}
 				}
 			}
@@ -75,7 +75,7 @@ class BVProtectCallback extends BVCallbackBase {
 			$resp = array('conf' => $this->settings->getOption('bvruleset'));
 			break;
 		case "gtraddr":
-			$raddr = array_key_exists('REMOTE_ADDR', $_SERVER) ? wp_unslash($_SERVER['REMOTE_ADDR']) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$raddr = WPRHelper::getRawParam('SERVER', 'REMOTE_ADDR');
 			$resp = array("raddr" => $raddr);
 			break;
 		case "svrcnf":
