@@ -8,7 +8,7 @@ class BVFSCallback extends BVCallbackBase {
 	public $account;
 
 	public static $cwAllowedFiles = array(".htaccess", ".user.ini", "malcare-waf.php");
-	const FS_WING_VERSION = 1.3;
+	const FS_WING_VERSION = 1.4;
 
 	public function __construct($callback_handler) {
 		$this->account = $callback_handler->account;
@@ -138,6 +138,103 @@ class BVFSCallback extends BVCallbackBase {
 		}
 
 		return $links;
+	}
+
+	function getDirectoryPath($dir, $traversal_stack) {
+		$base_path = rtrim($dir, '/');
+		$sub_path = empty($traversal_stack) ? '' : '/' . implode('/', array_column($traversal_stack, 0));
+		return $base_path . $sub_path . '/';
+	}
+
+	function seekDirectoryHandle($directory_handle, $offset) {
+		while ($offset > 0 && ($file = @readdir($directory_handle)) !== false) {
+			if ($file === "." || $file === "..") continue;
+			$offset--;
+		}
+	}
+
+	function scanFilesDfs($dir = "/", $traversal_stack = array(), $folder_offset = 0, $limit = 0, $traversal_stack_max_size = 100,
+			$batch_size = 512, $is_recursive = true, $include_md5 = false) {
+		$links = [];
+		$batch_count = 0;
+		$batch_files = [];
+		$count = 0;
+		$traversal_stack_max_size_reached_count = 0;
+
+		$base_path = $this->getDirectoryPath($dir, $traversal_stack);
+		$directory_handle = @opendir(ABSPATH . $base_path);
+
+		$this->seekDirectoryHandle($directory_handle, $folder_offset);
+
+		while ($limit == 0 || ($limit > 0 && $count < $limit)) {
+			if (($file = @readdir($directory_handle)) !== false) {
+				if ($file === "." || $file === "..") continue;
+
+				$relative_path = $base_path . $file;
+				$absolute_path = ABSPATH . $relative_path;
+
+				$count++;
+				$folder_offset++;
+
+				$batch_files[] = $this->fileStat($relative_path, $include_md5);
+				$batch_count++;
+
+				if ($batch_count >= $batch_size) {
+					$this->stream->writeStream(serialize($batch_files));
+					$batch_count = 0;
+					$batch_files = [];
+				}
+
+				if (is_link($absolute_path)) {
+					$links[] = $relative_path;
+				} elseif ($is_recursive && is_dir($absolute_path)) {
+					if (count($traversal_stack) >= $traversal_stack_max_size) {
+						$traversal_stack_max_size_reached_count += 1;
+						continue;
+					}
+
+					closedir($directory_handle);
+
+					array_push($traversal_stack, [$file, $folder_offset]);
+					$base_path = $this->getDirectoryPath($dir, $traversal_stack);
+
+					$directory_handle = @opendir(ABSPATH . $base_path);
+					$folder_offset = 0;
+				}
+
+				continue;
+			}
+
+			if ($directory_handle !== false) {
+				closedir($directory_handle);
+			}
+
+			if (empty($traversal_stack)) {
+				break;
+			}
+			$current_info = array_pop($traversal_stack);
+
+			$base_path = $this->getDirectoryPath($dir, $traversal_stack);
+			$directory_handle = @opendir(ABSPATH . $base_path);
+
+			if ($directory_handle === false) {
+				continue;
+			}
+
+			$this->seekDirectoryHandle($directory_handle, $current_info[1]);
+			$folder_offset = $current_info[1];
+		}
+
+		if ($batch_count > 0) {
+			$this->stream->writeStream(serialize($batch_files));
+		}
+
+		return [
+			'links' => $links,
+			'traversal_stack' => $traversal_stack,
+			'folder_offset' => $folder_offset,
+			'traversal_stack_max_size_reached_count' => $traversal_stack_max_size_reached_count
+		];
 	}
 
 	function calculateMd5($absfile, $fdata, $offset, $limit, $bsize) {
@@ -304,6 +401,35 @@ class BVFSCallback extends BVCallbackBase {
 					$links = array_merge($links, $_links);
 				}
 				$resp = array("status" => "done", "links" => $links);
+				break;
+			case "scanfilesdfs":
+				$resp = array();
+				$dir_options = array();
+				if (array_key_exists('dir_options', $params)) {
+					$dir_options = $params['dir_options'];
+				}
+				$bsize = intval($params['bsize']);
+				$traversal_stack_max_size = intval($params['traversal_stack_max_size']);
+				foreach($dir_options as $option) {
+					$dir = $option['dir'];
+					$traversal_stack = $option['traversal_stack'];
+					$folder_offset = intval($option['folder_offset']);
+					$limit = intval($option['limit']);
+
+					$recurse = true;
+					if (array_key_exists('recurse', $option) && $option["recurse"] == "false") {
+						$recurse = false;
+					}
+
+					$md5 = true;
+					if (array_key_exists('md5', $option) && $option["md5"] == "false") {
+						$md5 = false;
+					}
+
+					$resp[$dir] = $this->scanFilesDfs($dir, $traversal_stack, $folder_offset, $limit,
+							$traversal_stack_max_size, $bsize, $recurse, $md5);
+				}
+				$resp["status"] = "done";
 				break;
 			case "getfilesstats":
 				$files = $params['files'];

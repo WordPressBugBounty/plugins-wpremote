@@ -11,7 +11,7 @@ if (!class_exists('WPRInfo')) :
 		public $ip_header_option = 'wpripheader';
 		public $brand_option = 'bv_whitelabel_infos';
 		public $wp_lp_whitelabel_option = 'wprLpWhitelabelConf';
-		public $version = '5.91';
+		public $version = '5.92';
 		public $webpage = 'https://wpremote.com';
 		public $appurl = 'https://app.wpremote.com';
 		public $slug = 'wpremote/plugin.php';
@@ -92,21 +92,6 @@ if (!class_exists('WPRInfo')) :
 			return BV_REQUEST_ID;
 		}
 
-		public function canSetCWBranding() {
-			if (WPRWPSiteInfo::isCWServer()) {
-
-				$bot_protect_accounts = WPRAccount::accountsByType($this->settings, 'botprotect');
-				if (sizeof($bot_protect_accounts) >= 1)
-					return true;
-
-				$bot_protect_accounts = WPRAccount::accountsByPattern($this->settings, 'email', '/@cw_user\.com$/');
-				if (sizeof($bot_protect_accounts) >= 1)
-					return true;
-			}
-
-			return false;
-		}
-
 		public function canWhiteLabel($slug = NULL) {
 			// phpcs:disable WordPress.Security.NonceVerification.Recommended
 			if (array_key_exists("bv_override_global_whitelabel", $_REQUEST)) {
@@ -162,7 +147,6 @@ if (!class_exists('WPRInfo')) :
 			if (is_array($brand) && array_key_exists('menuname', $brand)) {
 				return $brand['menuname'];
 			}
-		  
 			return $this->brandname;
 		}
 

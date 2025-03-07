@@ -2,8 +2,8 @@
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!trait_exists('WPRProtectFWRuleStringFunc_V591')) :
-trait WPRProtectFWRuleStringFunc_V591 {
+if (!trait_exists('WPRProtectFWRuleStringFunc_V592')) :
+trait WPRProtectFWRuleStringFunc_V592 {
 	private function _rf_isNumeric() {
 		$args = $this->processRuleFunctionParams(
 			'isNumeric',
@@ -238,7 +238,7 @@ trait WPRProtectFWRuleStringFunc_V591 {
 				}
 			}
 		} else {
-			throw new WPRProtectRuleError_V591(
+			throw new WPRProtectRuleError_V592(
 				$this->addExState("containsAnySubstring: Expects an array of substrings.")
 			);
 		}
@@ -273,7 +273,7 @@ trait WPRProtectFWRuleStringFunc_V591 {
 		$offset = isset($args[2]) ? $args[2] : 0;
 
 		if (!is_int($offset)) {
-			throw new WPRProtectRuleError_V591(
+			throw new WPRProtectRuleError_V592(
 				$this->addExState("strPos: Offset should be an integer")
 			);
 		}
@@ -318,13 +318,13 @@ trait WPRProtectFWRuleStringFunc_V591 {
 		$limit = isset($args[2]) ? $args[2] : PHP_INT_MAX;
 
 		if (empty($separator)) {
-			throw new WPRProtectRuleError_V591(
+			throw new WPRProtectRuleError_V592(
 				$this->addExState("splitString: Separator cannot be empty")
 			);
 		}
 
 		if (!is_int($limit)) {
-			throw new WPRProtectRuleError_V591(
+			throw new WPRProtectRuleError_V592(
 				$this->addExState("splitString: Limit should be an integer")
 			);
 		}
