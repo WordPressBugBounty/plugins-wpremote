@@ -1,8 +1,8 @@
 <?php
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtectWPUser_V592')) :
-class WPRProtectWPUser_V592 {
+if (!class_exists('WPRProtectWPUser_V593')) :
+class WPRProtectWPUser_V593 {
 	public $id;
 	public $role;
 	public $role_level;
@@ -21,7 +21,7 @@ class WPRProtectWPUser_V592 {
 
 	public static function defaultUser() {
 		$time = (int) floor(time() / 43200);
-		return (new WPRProtectWPUser_V592(0, 0, array(), $time));
+		return (new WPRProtectWPUser_V593(0, 0, array(), $time));
 	}
 
 	public static function _serialize($user) {
@@ -41,7 +41,7 @@ class WPRProtectWPUser_V592 {
 		list($id, $role_level, $capabilities, $time) = $user_attrs;
 		$capabilities = array_map('intval', explode(',', $capabilities));
 
-		return (new WPRProtectWPUser_V592((int) $id, (int) $role_level, $capabilities, (int) $time));
+		return (new WPRProtectWPUser_V593((int) $id, (int) $role_level, $capabilities, (int) $time));
 	}
 
 	public function isIdentical($user) {

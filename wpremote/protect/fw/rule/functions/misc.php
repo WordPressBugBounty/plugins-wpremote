@@ -2,8 +2,8 @@
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!trait_exists('WPRProtectFWRuleMiscFunc_V592')) :
-trait WPRProtectFWRuleMiscFunc_V592 {
+if (!trait_exists('WPRProtectFWRuleMiscFunc_V593')) :
+trait WPRProtectFWRuleMiscFunc_V593 {
 	private function _rf_isTrue() {
 		$args = $this->processRuleFunctionParams(
 			'isTrue',
@@ -56,7 +56,7 @@ trait WPRProtectFWRuleMiscFunc_V592 {
 		$name = $args[0];
 
 		if (!array_key_exists($name, $this->variables)) {
-			throw new WPRProtectRuleError_V592(
+			throw new WPRProtectRuleError_V593(
 				$this->addExState("UndefinedVariableError: " . $name . " is not defined.")
 			);
 		}
@@ -117,7 +117,7 @@ trait WPRProtectFWRuleMiscFunc_V592 {
 		}
 		$resp = WPRHelper::safePregMatch((string) $pattern, (string) $subject);
 		if ($resp === false) {
-			throw new WPRProtectRuleError_V592(
+			throw new WPRProtectRuleError_V593(
 				$this->addExState('BVHelper::safePregMatch' . serialize($subject))
 			);
 		} elseif ($resp > 0) {
@@ -158,7 +158,7 @@ trait WPRProtectFWRuleMiscFunc_V592 {
 		}
 		$count = preg_match_all((string) $pattern, (string) $subject, $matches);
 		if ($count === false) {
-			throw new WPRProtectRuleError_V592(
+			throw new WPRProtectRuleError_V593(
 				$this->addExState("preg_match_all: " . serialize($subject))
 			);
 		}
@@ -184,7 +184,7 @@ trait WPRProtectFWRuleMiscFunc_V592 {
 		}
 		$count = preg_match_all((string) $pattern, (string) $subject, $matches);
 		if ($count === false) {
-			throw new WPRProtectRuleError_V592(
+			throw new WPRProtectRuleError_V593(
 				$this->addExState("preg_match_all: " . serialize($subject))
 			);
 		}

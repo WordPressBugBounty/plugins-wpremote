@@ -11,7 +11,7 @@ if (!class_exists('WPRInfo')) :
 		public $ip_header_option = 'wpripheader';
 		public $brand_option = 'bv_whitelabel_infos';
 		public $wp_lp_whitelabel_option = 'wprLpWhitelabelConf';
-		public $version = '5.92';
+		public $version = '5.93';
 		public $webpage = 'https://wpremote.com';
 		public $appurl = 'https://app.wpremote.com';
 		public $slug = 'wpremote/plugin.php';
