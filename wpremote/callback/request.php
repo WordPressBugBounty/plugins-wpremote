@@ -24,6 +24,11 @@ if (!class_exists('BVCallbackRequest')) :
 		public $bvprmsmac;
 		public $bvboundry;
 
+		private static $SIG_HASH_ALGO_MAP = array(
+			'1' => OPENSSL_ALGO_SHA1,
+			'7' => OPENSSL_ALGO_SHA256
+		);
+
 		public function __construct($account, $in_params, $settings) {
 			$this->params = array();
 			$this->account = $account;
@@ -34,7 +39,7 @@ if (!class_exists('BVCallbackRequest')) :
 			$this->is_admin_ajax = array_key_exists('adajx', $in_params);
 			$this->is_debug = array_key_exists('bvdbg', $in_params);
 			$this->sig = $in_params['sig'];
-			$this->sighshalgo = !empty($in_params['sighshalgo']) ? $in_params['sighshalgo'] : null;
+			$this->sighshalgo = !empty($in_params['sighshalgo']) ? $in_params['sighshalgo'] : '1';
 			$this->time = intval($in_params['bvTime']);
 			$this->version = $in_params['bvVersion'];
 			$this->is_sha1 = array_key_exists('sha1', $in_params);
@@ -235,6 +240,12 @@ if (!class_exists('BVCallbackRequest')) :
 				return false;
 			}
 
+			$openssl_algo = array_key_exists($sighshalgo, self::$SIG_HASH_ALGO_MAP) ? self::$SIG_HASH_ALGO_MAP[$sighshalgo] : null;
+			if ($openssl_algo === null) {
+				$this->error["message"] = "UNSUPPORTED_HASH_ALGORITHM: " . $sighshalgo;
+				return false;
+			}
+
 			$key_file = dirname( __DIR__ ) . '/public_keys/' . $this->pubkey_name . '.pub';
 			if (!file_exists($key_file)) {
 				$this->error["message"] = "PUBLIC_KEY_NOT_FOUND";
@@ -249,11 +260,7 @@ if (!class_exists('BVCallbackRequest')) :
 				return false;
 			}
 
-			if ($sighshalgo === 'sha256') {
-				$verify = openssl_verify($data, $sig, $public_key, OPENSSL_ALGO_SHA256);
-			} else {
-				$verify = openssl_verify($data, $sig, $public_key);
-			}
+			$verify = openssl_verify($data, $sig, $public_key, $openssl_algo);
 			if ($verify === 1) {
 				return true;
 			} elseif ($verify === 0) {

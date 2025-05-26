@@ -1,8 +1,8 @@
 <?php
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtectIpstoreFS_V593')) :
-	class WPRProtectIpstoreFS_V593 {
+if (!class_exists('WPRProtectIpstoreFS_V602')) :
+	class WPRProtectIpstoreFS_V602 {
 		private $whitelisted_ips;
 		private $blacklisted_ips;
 
@@ -11,21 +11,21 @@ if (!class_exists('WPRProtectIpstoreFS_V593')) :
 
 		function __construct() {
 			$ip_store_file = MCDATAPATH . MCCONFKEY . '-' . 'mc_ips.conf';
-			$ips = WPRProtectUtils_V593::parseFile($ip_store_file);
+			$ips = WPRProtectUtils_V602::parseFile($ip_store_file);
 			$this->whitelisted_ips = array_key_exists('whitelisted', $ips) ? $ips['whitelisted'] : array();
 			$this->blacklisted_ips = array_key_exists('blacklisted', $ips) ? $ips['blacklisted'] : array();
 		}
 
 		public function getTypeIfBlacklistedIP($ip) {
-			return $this->getIPType($ip, WPRProtectIpstoreFS_V593::IP_TYPE_BLACKLISTED);
+			return $this->getIPType($ip, WPRProtectIpstoreFS_V602::IP_TYPE_BLACKLISTED);
 		}
 
 		public function isFWIPBlacklisted($ip) {
-			return $this->checkIPPresent($ip, WPRProtectIpstoreFS_V593::IP_TYPE_BLACKLISTED);
+			return $this->checkIPPresent($ip, WPRProtectIpstoreFS_V602::IP_TYPE_BLACKLISTED);
 		}
 
 		public function isFWIPWhitelisted($ip) {
-			return $this->checkIPPresent($ip, WPRProtectIpstoreFS_V593::IP_TYPE_WHITELISTED);
+			return $this->checkIPPresent($ip, WPRProtectIpstoreFS_V602::IP_TYPE_WHITELISTED);
 		}
 
 		private function checkIPPresent($ip, $type) {
@@ -36,9 +36,9 @@ if (!class_exists('WPRProtectIpstoreFS_V593')) :
 		#XNOTE: getIPCategory or getIPType?
 		private function getIPType($ip, $type) {
 			switch ($type) {
-			case WPRProtectIpstoreFS_V593::IP_TYPE_BLACKLISTED:
+			case WPRProtectIpstoreFS_V602::IP_TYPE_BLACKLISTED:
 				return isset($this->blacklisted_ips[$ip]) ? $this->blacklisted_ips[$ip] : null;
-			case WPRProtectIpstoreFS_V593::IP_TYPE_WHITELISTED:
+			case WPRProtectIpstoreFS_V602::IP_TYPE_WHITELISTED:
 				return isset($this->whitelisted_ips[$ip]) ? $this->whitelisted_ips[$ip] : null;
 			}
 		}

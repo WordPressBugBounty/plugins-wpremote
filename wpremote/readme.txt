@@ -4,9 +4,9 @@ Tags: backup, update, manage multiple sites, site management, monitoring
 Plugin URI: https://wpremote.com/
 Donate link: https://wpremote.com/
 Requires at least: 4.0
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 5.6.0
-Stable tag: 5.93
+Stable tag: 6.02
 License: GPLv2 or later
 License URI: [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -41,6 +41,9 @@ Having an account is necessary to use our service, and your email address serves
 In addition, we may use your email address to notify you about any changes or updates that we make to our service, as well as any new features or services that we may offer to help enhance your user experience.
 
 == CHANGELOG ==
+= 6.02 =
+* Tweak: Improved Authentication
+
 = 5.93 =
 * Tweak: Improvements in bulk upgrade
 
