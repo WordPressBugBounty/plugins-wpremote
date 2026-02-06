@@ -1,39 +1,39 @@
 <?php
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtectIpstore_V602')) :
+if (!class_exists('WPRProtectIpstore_V636')) :
 require_once dirname( __FILE__ ) . '/request.php';
 require_once dirname( __FILE__ ) . '/ipstore/fs.php';
 require_once dirname( __FILE__ ) . '/ipstore/db.php';
 
-class WPRProtectIpstore_V602 {
+class WPRProtectIpstore_V636 {
 	private $storage;
 	private $storage_type;
 
 	const STORAGE_TYPE_FS = 0;
 	const STORAGE_TYPE_DB = 1;
 
-	function __construct($storage_type = WPRProtectIpstore_V602::STORAGE_TYPE_DB) {
+	function __construct($storage_type = WPRProtectIpstore_V636::STORAGE_TYPE_DB) {
 		$this->storage_type = $storage_type;
-		if ($this->storage_type == WPRProtectIpstore_V602::STORAGE_TYPE_FS) {
-			$this->storage = new WPRProtectIpstoreFS_V602();
+		if ($this->storage_type == WPRProtectIpstore_V636::STORAGE_TYPE_FS) {
+			$this->storage = new WPRProtectIpstoreFS_V636();
 		} else {
-			$this->storage = new WPRProtectIpstoreDB_V602();
+			$this->storage = new WPRProtectIpstoreDB_V636();
 		}
 	}
 
 	public static function uninstall() {
-		WPRProtectIpstoreDB_V602::uninstall();
+		WPRProtectIpstoreDB_V636::uninstall();
 	}
 
 	public function isLPIPBlacklisted($ip) {
-		if ($this->storage_type == WPRProtectIpstore_V602::STORAGE_TYPE_DB) {
+		if ($this->storage_type == WPRProtectIpstore_V636::STORAGE_TYPE_DB) {
 			return $this->storage->isLPIPBlacklisted($ip);
 		}
 	}
 
 	public function isLPIPWhitelisted($ip) {
-		if ($this->storage_type == WPRProtectIpstore_V602::STORAGE_TYPE_DB) {
+		if ($this->storage_type == WPRProtectIpstore_V636::STORAGE_TYPE_DB) {
 			return $this->storage->isLPIPWhitelisted($ip);
 		}
 	}

@@ -705,8 +705,12 @@ class BVManageCallback extends BVCallbackBase {
 		$destination = $params['dest'];
 		$clear_destination = isset($params['cleardest']) ? $params['cleardest'] : false;
 		$package_url = $params['package'];
+		$is_parent_theme_install_disabled = isset($params['is_parent_theme_install_disabled']) ? $params['is_parent_theme_install_disabled'] : false;
 		$key = basename($package_url);
 		add_filter('upgrader_source_selection', array($upgrader, 'check_package'));
+		if ("theme" === $type && false === $is_parent_theme_install_disabled) {
+			add_filter('upgrader_post_install', array($upgrader, 'check_parent_theme_filter'), 10, 3);
+		}
 		$res = $upgrader->run(
 			array(
 				'package' => $package_url,
@@ -720,6 +724,9 @@ class BVManageCallback extends BVCallbackBase {
 			)
 		);
 		remove_filter('upgrader_source_selection', array($upgrader, 'check_package'));
+		if ("theme" === $type && false === $is_parent_theme_install_disabled) {
+			remove_filter('upgrader_post_install', array($upgrader, 'check_parent_theme_filter'), 10);
+		}
 		if (is_wp_error($res)) {
 			$res = array('status' => "Error", 'message' => $this->getError($res));
 		} else {
@@ -736,7 +743,15 @@ class BVManageCallback extends BVCallbackBase {
 		return apply_filters( 'mwp_premium_perform_update', array() );
 	}
 
-	function autoLogin($username, $isHttps) {
+	function autoLogin($username, $isHttps, $auto_login_token = null) {
+		# Validate nonce if provided (other plugin compatibility: allow login if token missing)
+		if ($auto_login_token !== null && $auto_login_token !== '') {
+			$validation_result = $this->validateAutoLoginToken($auto_login_token);
+			if ($validation_result !== true) {
+				return $validation_result;
+			}
+		}
+
 		$user = get_user_by('login', $username);
 		if ($user != FALSE) {
 			wp_set_current_user( $user->ID );
@@ -751,6 +766,39 @@ class BVManageCallback extends BVCallbackBase {
 			wp_safe_redirect( $redirect_to );
 			exit;
 		}
+	}
+
+	private function validateAutoLoginToken($auto_login_token) {
+		# Get plugin name for transient key prefix
+		$plugname = $this->bvinfo->plugname;
+		if (empty($plugname)) {
+			return array(
+				'status' => 'Error',
+				'message' => 'PLUGIN_NAME_NOT_FOUND',
+				'error_code' => 'PLUGIN_NAME_ERROR'
+			);
+		}
+
+		# Construct transient key: {plugname}_auto_login_tk_{token}
+		$transient_key = $plugname . '_auto_login_tk_' . $auto_login_token;
+
+		# Check if token has already been used
+		$used_token = $this->settings->getTransient($transient_key);
+		if ($used_token !== false) {
+			# Token already used - prevent replay attack
+			return array(
+				'status' => 'Error',
+				'message' => 'AUTO_LOGIN_TOKEN_ALREADY_USED',
+				'error_code' => 'AUTO_LOGIN_TOKEN_ERROR'
+			);
+		}
+
+		# Store token as used for 24 hours to prevent reuse
+		# WordPress will automatically clean up expired transients
+		$this->settings->setTransient($transient_key, true, DAY_IN_SECONDS);
+
+		# Token is valid and has been marked as used
+		return true;
 	}
 
 	public function refreshPluginUpdates() {
@@ -947,7 +995,8 @@ class BVManageCallback extends BVCallbackBase {
 			$isHttps = false;
 			if (array_key_exists('https', $params))
 				$isHttps = true;
-			$resp = array("autologin" => $this->autoLogin($params['username'], $isHttps));
+			$auto_login_token = array_key_exists('auto_login_token', $params) ? $params['auto_login_token'] : null;
+			$resp = array("autologin" => $this->autoLogin($params['username'], $isHttps, $auto_login_token));
 			break;
 		case "updatedb":
 			$resp = array("status" => $this->upgrade_db());

@@ -1,18 +1,23 @@
 === The WP Remote WordPress Plugin ===
-Contributors: BlogVault Backup
+Contributors: akshatc
 Tags: backup, update, manage multiple sites, site management, monitoring
 Plugin URI: https://wpremote.com/
 Donate link: https://wpremote.com/
 Requires at least: 4.0
-Tested up to: 6.8
-Requires PHP: 5.6.0
-Stable tag: 6.02
+Tested up to: 6.9
+Requires PHP: 7.0
+Stable tag: 6.36
 License: GPLv2 or later
 License URI: [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
+
+Manage updates, backups, and more across all your WordPress sites with WP Remote.
 
 == DESCRIPTION ==
 The WP Remote WordPress Plugin works with [WP Remote](https://wpremote.com/) to enable you to remotely manage and update all your WordPress sites.
 WP Remote has been acquired by BlogVault.
+
+**Why you need WP Remote?**
+[youtube https://www.youtube.com/watch?v=yfsP7Wye3oo]
 
 = Features =
 
@@ -41,6 +46,10 @@ Having an account is necessary to use our service, and your email address serves
 In addition, we may use your email address to notify you about any changes or updates that we make to our service, as well as any new features or services that we may offer to help enhance your user experience.
 
 == CHANGELOG ==
+= 6.36 =
+* Tweak: Improvements in Auto-login and File System
+* Tweak: Code Restructuring
+
 = 6.02 =
 * Tweak: Improved Authentication
 

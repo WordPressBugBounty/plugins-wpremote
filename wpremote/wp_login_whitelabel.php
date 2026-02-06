@@ -35,11 +35,13 @@ class WPRWPLoginWhitelabel {
 		$logo_style = 'background-image: none, url("' . esc_attr($this->logo) . '") !important;';
 
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo '<style type="text/css">
-			.login h1 a {
-			' . $logo_style . '
-			}
-		</style>';
+		wp_register_style( 'bv-login-inline', false );
+		wp_enqueue_style( 'bv-login-inline' );
+
+		wp_add_inline_style(
+			'bv-login-inline',
+			'.login h1 a { ' . $logo_style . ' }'
+		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 

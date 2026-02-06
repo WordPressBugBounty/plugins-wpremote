@@ -5,7 +5,7 @@ Plugin URI: https://wpremote.com
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>.
 Author: WP Remote
 Author URI: https://wpremote.com
-Version: 6.02
+Version: 6.36
 Network: True
 License: GPLv2 or later
 License URI: [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
@@ -84,6 +84,8 @@ if (is_admin()) {
 	}
 	add_filter('plugin_action_links', array($wpadmin, 'settingsLink'), 10, 2);
 	add_action('admin_head', array($wpadmin, 'removeAdminNotices'), 3);
+
+	##MG_AJAX_ACTIONS##
 	##POPUP_ON_DEACTIVATION##
 	add_action('admin_notices', array($wpadmin, 'activateWarning'));
 	add_action('admin_enqueue_scripts', array($wpadmin, 'wprsecAdminMenu'));
@@ -169,14 +171,14 @@ if (WPRHelper::getRawParam('REQUEST', 'bvplugname') == "wpremote") {
 		if ($bvinfo->isProtectModuleEnabled()) {
 			require_once dirname( __FILE__ ) . '/protect/protect.php';
 			//For backward compatibility.
-			WPRProtect_V602::$settings = new WPRWPSettings();
-			WPRProtect_V602::$db = new WPRWPDb();
-			WPRProtect_V602::$info = new WPRInfo(WPRProtect_V602::$settings);
+			WPRProtect_V636::$settings = new WPRWPSettings();
+			WPRProtect_V636::$db = new WPRWPDb();
+			WPRProtect_V636::$info = new WPRInfo(WPRProtect_V636::$settings);
 
-			add_action('wpr_clear_pt_config', array('WPRProtect_V602', 'uninstall'));
+			add_action('wpr_clear_pt_config', array('WPRProtect_V636', 'uninstall'));
 
 			if ($bvinfo->isActivePlugin()) {
-				WPRProtect_V602::init(WPRProtect_V602::MODE_WP);
+				WPRProtect_V636::init(WPRProtect_V636::MODE_WP);
 			}
 		}
 
@@ -227,3 +229,4 @@ if (!empty($bvinfo->getLPWhitelabelInfo())) {
 }
 
 add_action('wpr_clear_wp_2fa_config', array($wp_action, 'clear_wp_2fa_config'));
+##PLUGIN_LOADED_MODULE##

@@ -238,6 +238,10 @@ class BVFSWriteCallback extends BVCallbackBase {
 					if (isset($fs_error)) {
 						$action_result['fs_error'] = $fs_error;
 					}
+				} else {
+					if (function_exists('opcache_invalidate')) {
+						$action_result['opcache'] = opcache_invalidate($newpath, true);
+					}
 				}
 			} else {
 				$action_result['status'] = false;
@@ -338,6 +342,9 @@ class BVFSWriteCallback extends BVCallbackBase {
 			$myfile = $_FILES['myfile'];
 			$is_upload_ok = false;
 
+			// Validate PHP upload errors manually
+			// This approach handles any file type (PHP, ZIP, SQL, etc.) without MIME restrictions
+			// Uses WordPress Filesystem API instead of wp_handle_upload() which is designed for media uploads
 			switch ($myfile['error']) {
 			case UPLOAD_ERR_OK:
 				$is_upload_ok = true;
@@ -359,8 +366,26 @@ class BVFSWriteCallback extends BVCallbackBase {
 			}
 
 			if ($is_upload_ok) {
-				if (move_uploaded_file($myfile['tmp_name'], $ofile) === false) {
+				$tmp_name = $myfile['tmp_name'];
+
+				// Ensure target directory exists
+				$target_dir = dirname($ofile);
+				if (!file_exists($target_dir)) {
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- Using mkdir() directly as there is no direct support for recursion
+					if (!mkdir($target_dir, 0777, true)) {
+						$result['error'] = 'MKDIR_FAILED_FOR_TARGET';
+						return $result;
+					}
+				}
+
+				// Use WordPress Filesystem API to move the uploaded file
+				// This is WordPress.org compliant and handles any file type
+				if (WPRWPFileSystem::getInstance()->move($tmp_name, $ofile, true) === false) {
 					$result['error'] = 'MOVE_UPLOAD_FILE_FAILED';
+					$fs_error = WPRWPFileSystem::getInstance()->checkForErrors();
+					if (isset($fs_error)) {
+						$result['fs_error'] = $fs_error;
+					}
 				}
 			}
 
