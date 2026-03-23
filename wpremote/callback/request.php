@@ -1,8 +1,8 @@
 <?php
 
 if (!defined('ABSPATH')) exit;
-if (!class_exists('BVCallbackRequest')) :
-	class BVCallbackRequest {
+if (!class_exists('WPRCallbackRequest')) :
+	class WPRCallbackRequest {
 		public $params;
 		public $method;
 		public $wing;
@@ -156,7 +156,7 @@ if (!class_exists('BVCallbackRequest')) :
 
 					if (array_key_exists('sersafe', $in_params)) {
 						$key = $in_params['sersafe'];
-						$in_params[$key] = BVCallbackRequest::serialization_safe_decode($in_params[$key]);
+						$in_params[$key] = WPRCallbackRequest::serialization_safe_decode($in_params[$key]);
 					}
 
 					if (array_key_exists('bvprms', $in_params) && isset($in_params['bvprms'])) {
@@ -206,7 +206,7 @@ if (!class_exists('BVCallbackRequest')) :
 
 		public static function serialization_safe_decode($data) {
 			if (is_array($data)) {
-				$data = array_map(array('BVCallbackRequest', 'serialization_safe_decode'), $data);
+				$data = array_map(array('WPRCallbackRequest', 'serialization_safe_decode'), $data);
 			} elseif (is_string($data)) {
 				$data = base64_decode($data);
 			}

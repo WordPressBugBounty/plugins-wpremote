@@ -1,11 +1,11 @@
 <?php
 if (!defined('ABSPATH')) exit;
-if (!class_exists('BVFSWriteCallback')) :
+if (!class_exists('WPRFSWriteCallback')) :
 
-class BVFSWriteCallback extends BVCallbackBase {
+class WPRFSWriteCallback extends WPRCallbackBase {
 
 	const MEGABYTE = 1048576;
-	const FS_WRITE_WING_VERSION = 1.1;
+	const FS_WRITE_WING_VERSION = 1.2;
 	
 	public function __construct() {
 	}
@@ -440,6 +440,72 @@ class BVFSWriteCallback extends BVCallbackBase {
 		return $resp;
 	}
 
+	public function runFileCmd($cmd_key, $cmd_params) {
+		switch ($cmd_key) {
+		case "wrtfle":
+			return $this->uploadFile($cmd_params);
+		case "renmefle":
+			$from = $cmd_params['from'];
+			$to = $cmd_params['to'];
+			$rename_result = $this->renameFiles(array($from => $to));
+			return isset($rename_result[$from]) ? $rename_result[$from] : array('status' => false, 'error' => 'RENAME_NO_RESULT');
+		case "chmd":
+			$path = $cmd_params['path'];
+			$chmod_result = $this->doChmod(array($path => $cmd_params['mode']));
+			return isset($chmod_result[$path]) ? $chmod_result[$path] : array('status' => false, 'error' => 'CHMOD_NO_RESULT');
+		case "mkdr":
+			$path = $cmd_params['path'];
+			$perms = isset($cmd_params['perms']) ? $cmd_params['perms'] : 0777;
+			$rec = isset($cmd_params['rec']) ? (bool) $cmd_params['rec'] : true;
+			$mkdir_result = $this->makeDirs(array($path), $perms, $rec);
+			return isset($mkdir_result[$path]) ? $mkdir_result[$path] : array('status' => false, 'error' => 'MKDIR_NO_RESULT');
+		case "rmfle":
+			$files = $cmd_params['files'];
+			$rm_result = $this->removeFiles($files);
+			$first = reset($files);
+			return isset($rm_result[$first]) ? $rm_result[$first] : array('status' => false, 'error' => 'RMFLE_NO_RESULT');
+		case "rmdr":
+			$dirs = $cmd_params['dirs'];
+			$rmdr_result = $this->removeDirs($dirs);
+			$first = reset($dirs);
+			return isset($rmdr_result[$first]) ? $rmdr_result[$first] : array('status' => false, 'error' => 'RMDR_NO_RESULT');
+		default:
+			return array('status' => false, 'error' => 'UNKNOWN_CMD');
+		}
+	}
+
+	public function executeFileOps($ops, $all_required = false) {
+		$result = array();
+		$all_success = true;
+
+		foreach ($ops as $op) {
+			$identifier = $op['identifier'];
+			$cmds = $op['cmds'];
+			$op_result = array();
+
+			foreach ($cmds as $cmd) {
+				foreach ($cmd as $cmd_key => $cmd_params) {
+					$cmd_result = $this->runFileCmd($cmd_key, $cmd_params);
+					$op_result[$cmd_key] = $cmd_result;
+
+					if (isset($cmd_result['status']) && $cmd_result['status'] === false) {
+						$all_success = false;
+						break 2;
+					}
+				}
+			}
+
+			$result[$identifier] = $op_result;
+
+			if ($all_required && !$all_success) {
+				break;
+			}
+		}
+
+		$result['status'] = $all_success;
+		return $result;
+	}
+
 	public function process($request) {
 		$params = $request->params;
 
@@ -462,8 +528,12 @@ class BVFSWriteCallback extends BVCallbackBase {
 		case "wrtfle":
 			$resp = $this->uploadFile($params);
 			break;
+		case "fleops":
+			$all_required = isset($params['all_required']) ? (bool) $params['all_required'] : false;
+			$resp = $this->executeFileOps($params['ops'], $all_required);
+			break;
 		case "cncatfls":
-			$bsize = (isset($params['bsize'])) ? $params['bsize'] : (8 * BVFSWriteCallback::MEGABYTE);
+			$bsize = (isset($params['bsize'])) ? $params['bsize'] : (8 * WPRFSWriteCallback::MEGABYTE);
 			$offset = (isset($params['offset'])) ? $params['offset'] : 0;
 			$resp = $this->concatFiles($params['infiles'], $params['ofile'], $bsize, $offset);
 			break;

@@ -7,11 +7,12 @@
 					require_once dirname( __FILE__ ) . "/components/form.php";
 				?>
 			</div>
-		</section>
-		<?php
-			require_once dirname( __FILE__ ) . "/components/features_list.php";
-			require_once dirname( __FILE__ ) . "/components/testimony.php";
-			require_once dirname( __FILE__ ) . "/components/footer.php";
-		?>
-	</div>
+			</section>
+			<?php
+				require_once dirname( __FILE__ ) . "/components/show-connection-key.php";
+				require_once dirname( __FILE__ ) . "/components/features_list.php";
+				require_once dirname( __FILE__ ) . "/components/testimony.php";
+				require_once dirname( __FILE__ ) . "/components/footer.php";
+			?>
+		</div>
 </div>

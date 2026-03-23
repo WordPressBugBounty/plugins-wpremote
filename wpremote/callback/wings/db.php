@@ -1,10 +1,10 @@
 <?php
 
 if (!defined('ABSPATH')) exit;
-if (!class_exists('BVDBCallback')) :
+if (!class_exists('WPRDBCallback')) :
 require_once dirname( __FILE__ ) . '/../streams.php';
 
-class BVDBCallback extends BVCallbackBase {
+class WPRDBCallback extends WPRCallbackBase {
 	public $db;
 	public $stream;
 	public $account;
@@ -182,7 +182,7 @@ class BVDBCallback extends BVCallbackBase {
 	public function process($request) {
 		$db = $this->db;
 		$params = $request->params;
-		$stream_init_info = BVStream::startStream($this->account, $request);
+		$stream_init_info = WPRStream::startStream($this->account, $request);
 
 		if (array_key_exists('stream', $stream_init_info)) {
 			$this->stream = $stream_init_info['stream'];

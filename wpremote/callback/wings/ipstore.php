@@ -1,10 +1,10 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-if (!class_exists('BVIPStoreCallback')) :
+if (!class_exists('WPRIPStoreCallback')) :
 require_once dirname( __FILE__ ) . '/../../protect/ipstore.php';
 
-class BVIPStoreCallback extends BVCallbackBase {
+class WPRIPStoreCallback extends WPRCallbackBase {
 	public $db;
 
 	const IPSTORE_WING_VERSION = 1.4;
@@ -50,7 +50,7 @@ class BVIPStoreCallback extends BVCallbackBase {
 
 	public function getIPs($table, $auto_increment_offset, $type, $category) {
 		$query = "SELECT `start_ip_range` FROM $table WHERE id < $auto_increment_offset AND `type` in (" . implode(',', $type) . ") AND ";
-		$query .= ($category == WPRProtectIpstoreDB_V636::CATEGORY_FW) ? "`is_fw` = true;" : "`is_lp` = true;";
+		$query .= ($category == WPRProtectIpstoreDB_V639::CATEGORY_FW) ? "`is_fw` = true;" : "`is_lp` = true;";
 		return $this->db->getCol($query);
 	}
 
@@ -64,13 +64,13 @@ class BVIPStoreCallback extends BVCallbackBase {
 		$info = array();
 
 		$info['fw_blacklisted_ips'] = $this->getIPs($table, $auto_increment_offset,
-			WPRProtectIpstoreDB_V636::blacklistedTypes(), WPRProtectIpstoreDB_V636::CATEGORY_FW);
+			WPRProtectIpstoreDB_V639::blacklistedTypes(), WPRProtectIpstoreDB_V639::CATEGORY_FW);
 		$info['lp_blacklisted_ips'] = $this->getIPs($table, $auto_increment_offset,
-			WPRProtectIpstoreDB_V636::blacklistedTypes(), WPRProtectIpstoreDB_V636::CATEGORY_LP);
+			WPRProtectIpstoreDB_V639::blacklistedTypes(), WPRProtectIpstoreDB_V639::CATEGORY_LP);
 		$info['fw_whitelisted_ips'] = $this->getIPs($table, $auto_increment_offset,
-			WPRProtectIpstoreDB_V636::whitelistedTypes(), WPRProtectIpstoreDB_V636::CATEGORY_FW);
+			WPRProtectIpstoreDB_V639::whitelistedTypes(), WPRProtectIpstoreDB_V639::CATEGORY_FW);
 		$info['lp_whitelisted_ips'] = $this->getIPs($table, $auto_increment_offset,
-			WPRProtectIpstoreDB_V636::whitelistedTypes(), WPRProtectIpstoreDB_V636::CATEGORY_LP);
+			WPRProtectIpstoreDB_V639::whitelistedTypes(), WPRProtectIpstoreDB_V639::CATEGORY_LP);
 		$info['ip_store_offset'] = $this->getIPStoreOffset($table, $auto_increment_offset);
 		$info['country_ips_size'] = intval($db->getVar("SELECT COUNT(id) FROM $table WHERE id >= $auto_increment_offset"));
 

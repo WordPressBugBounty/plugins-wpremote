@@ -1,8 +1,8 @@
 <?php
 
 if (!defined('ABSPATH')) exit;
-if (!class_exists('BVAccountCallback')) :
-class BVAccountCallback extends BVCallbackBase {
+if (!class_exists('WPRAccountCallback')) :
+class WPRAccountCallback extends WPRCallbackBase {
 	public $account;
 	public $settings;
 	

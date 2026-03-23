@@ -1,8 +1,8 @@
 <?php
 
 if (!defined('ABSPATH')) exit;
-if (!class_exists('BVUpgraderSkin')) :
-class BVUpgraderSkin extends WP_Upgrader_Skin {
+if (!class_exists('WPRUpgraderSkin')) :
+class WPRUpgraderSkin extends WP_Upgrader_Skin {
 	public $status = array();
 	public $action = '';
 	public $plugin_info = array();

@@ -64,6 +64,7 @@ class WPRWPAdmin {
 		if ($hook === 'toplevel_page_wpremote' || WPRHelper::safePregMatch("/wpr_add_account$/", $hook) || WPRHelper::safePregMatch("/wpr_account_details$/", $hook)) {
 			wp_enqueue_style( 'bootstrap', plugins_url('css/bootstrap.min.css', __FILE__), array(), $this->bvinfo->version);
 			wp_enqueue_style( 'bvplugin', plugins_url('css/bvplugin.min.css', __FILE__), array(), $this->bvinfo->version);
+			wp_enqueue_script( 'wpr-connection-key', plugins_url('js/connection-key.js', __FILE__), array(), $this->bvinfo->version, true);
 		}
 	}
 

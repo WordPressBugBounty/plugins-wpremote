@@ -1,9 +1,9 @@
 <?php
 
 if (!defined('ABSPATH')) exit;
-if (!class_exists('BVCallbackResponse')) :
+if (!class_exists('WPRCallbackResponse')) :
 
-	class BVCallbackResponse extends BVCallbackBase {
+	class WPRCallbackResponse extends WPRCallbackBase {
 		public $status;
 		public $bvb64cksize;
 

@@ -1,13 +1,13 @@
 <?php
 
 if (!defined('ABSPATH')) exit;
-if (!class_exists('BVManageCallback')) :
-class BVManageCallback extends BVCallbackBase {
+if (!class_exists('WPRManageCallback')) :
+class WPRManageCallback extends WPRCallbackBase {
 	public $settings;
 	public $skin;
 	public $bvinfo;
 
-	const MANAGE_WING_VERSION = 1.7;
+	const MANAGE_WING_VERSION = 1.8;
 
 	public function __construct($callback_handler) {
 		$this->settings = $callback_handler->settings;
@@ -34,20 +34,29 @@ class BVManageCallback extends BVCallbackBase {
 		}
 	}
 
+	/**
+	 * Load a file with require_once only if it exists, so missing files don't fatal the script.
+	 */
+	function safe_require_once($path) {
+		if ($path && file_exists($path)) {
+			require_once $path;
+		}
+	}
+
 	function include_files() {
-		@include_once ABSPATH.'wp-admin/includes/file.php';
-		@include_once ABSPATH.'wp-admin/includes/plugin.php';
-		@include_once ABSPATH.'wp-admin/includes/theme.php';
-		@include_once ABSPATH.'wp-admin/includes/misc.php';
-		@include_once ABSPATH.'wp-admin/includes/template.php';
-		@include_once ABSPATH.'wp-includes/pluggable.php';
-		@include_once ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
-		@include_once ABSPATH.'wp-admin/includes/class-theme-upgrader.php';
-		@include_once ABSPATH.'wp-admin/includes/class-plugin-upgrader.php';
-		@include_once ABSPATH.'wp-admin/includes/user.php';
-		@include_once ABSPATH.'wp-admin/includes/upgrade.php';
-		@include_once ABSPATH.'wp-admin/includes/update.php';
-		@require_once ABSPATH.'wp-admin/includes/update-core.php';
+		$this->safe_require_once(ABSPATH.'wp-admin/includes/file.php');
+		$this->safe_require_once(ABSPATH.'wp-admin/includes/plugin.php');
+		$this->safe_require_once(ABSPATH.'wp-admin/includes/theme.php');
+		$this->safe_require_once(ABSPATH.'wp-admin/includes/misc.php');
+		$this->safe_require_once(ABSPATH.'wp-admin/includes/template.php');
+		$this->safe_require_once(ABSPATH.'wp-includes/pluggable.php');
+		$this->safe_require_once(ABSPATH.'wp-admin/includes/class-wp-upgrader.php');
+		$this->safe_require_once(ABSPATH.'wp-admin/includes/class-theme-upgrader.php');
+		$this->safe_require_once(ABSPATH.'wp-admin/includes/class-plugin-upgrader.php');
+		$this->safe_require_once(ABSPATH.'wp-admin/includes/user.php');
+		$this->safe_require_once(ABSPATH.'wp-admin/includes/upgrade.php');
+		$this->safe_require_once(ABSPATH.'wp-admin/includes/update.php');
+		$this->safe_require_once(ABSPATH.'wp-admin/includes/update-core.php');
 	}
 
 	function edit($args) {
@@ -242,7 +251,7 @@ class BVManageCallback extends BVCallbackBase {
 			if (class_exists('Language_Pack_Upgrader')) {
 				if ($has_bv_skin) {
 					require_once( "bv_upgrader_skin.php" );
-					$skin = new BVUpgraderSkin("upgrade_translations");
+					$skin = new WPRUpgraderSkin("upgrade_translations");
 					$this->skin = $skin;
 				} else {
 					$skin = new Language_Pack_Upgrader_Skin(array());
@@ -462,7 +471,7 @@ class BVManageCallback extends BVCallbackBase {
 		if (class_exists('Plugin_Upgrader')) {
 			if ($has_bv_skin) {
 				require_once( "bv_upgrader_skin.php" );
-				$skin = new BVUpgraderSkin("plugin_upgrade", $plugins_by_name);
+				$skin = new WPRUpgraderSkin("plugin_upgrade", $plugins_by_name);
 				$this->skin = $skin;
 			} else {
 				$skin = new Bulk_Plugin_Upgrader_Skin();
@@ -622,7 +631,7 @@ class BVManageCallback extends BVCallbackBase {
 		if (class_exists('Theme_Upgrader')) {
 			if ($has_bv_skin) {
 				require_once( "bv_upgrader_skin.php" );
-				$skin = new BVUpgraderSkin("theme_upgrade");
+				$skin = new WPRUpgraderSkin("theme_upgrade");
 				$this->skin = $skin;
 			} else {
 				$skin = new Bulk_Theme_Upgrader_Skin();
@@ -689,7 +698,7 @@ class BVManageCallback extends BVCallbackBase {
 		}
 		if ($has_bv_skin) {
 			require_once( "bv_upgrader_skin.php" );
-			$skin = new BVUpgraderSkin("installer", array(), $params['package']);
+			$skin = new WPRUpgraderSkin("installer", array(), $params['package']);
 			$this->skin = $skin;
 		} else {
 			$skin = new WP_Upgrader_Skin();

@@ -1,9 +1,9 @@
 <?php
 
 if (!defined('ABSPATH')) exit;
-if (!class_exists('BVInfoCallback')) :
+if (!class_exists('WPRInfoCallback')) :
 
-class BVInfoCallback extends BVCallbackBase {
+class WPRInfoCallback extends WPRCallbackBase {
 	public $db;
 	public $settings;
 	public $siteinfo;

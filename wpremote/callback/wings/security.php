@@ -1,7 +1,7 @@
 <?php
 if (!defined('ABSPATH')) exit;
-if (!class_exists('BVSecurityCallback')) :
-	class BVSecurityCallback extends BVCallbackBase {
+if (!class_exists('WPRSecurityCallback')) :
+	class WPRSecurityCallback extends WPRCallbackBase {
 		private $settings;
 
 		public function __construct() {

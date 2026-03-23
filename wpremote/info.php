@@ -11,7 +11,7 @@ if (!class_exists('WPRInfo')) :
 		public $ip_header_option = 'wpripheader';
 		public $brand_option = 'bv_whitelabel_infos';
 		public $wp_lp_whitelabel_option = 'wprLpWhitelabelConf';
-		public $version = '6.36';
+		public $version = '6.39';
 		public $webpage = 'https://wpremote.com';
 		public $appurl = 'https://app.wpremote.com';
 		public $slug = 'wpremote/plugin.php';
@@ -86,10 +86,10 @@ if (!class_exists('WPRInfo')) :
 		}
 
 		public static function getRequestID() {
-			if (!defined("BV_REQUEST_ID")) {
-				define("BV_REQUEST_ID", uniqid(mt_rand())); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
+			if (!defined("WPR_REQUEST_ID")) {
+				define("WPR_REQUEST_ID", uniqid(mt_rand())); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
 			}
-			return BV_REQUEST_ID;
+			return WPR_REQUEST_ID;
 		}
 
 		public function canWhiteLabel($slug = NULL) {

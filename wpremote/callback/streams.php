@@ -8,9 +8,9 @@
 // WordPress filesystem alternatives wouldn't work for this use case
 // It's better to disable these specific rules at file level than adding individual ignore comments
 if (!defined('ABSPATH')) exit;
-if (!class_exists('BVRespStream')) :
+if (!class_exists('WPRRespStream')) :
 
-	class BVStream extends BVCallbackBase {
+	class WPRStream extends WPRCallbackBase {
 		public $bvb64stream;
 		public $bvb64cksize;
 		public $checksum;
@@ -27,9 +27,9 @@ if (!class_exists('BVRespStream')) :
 		public static function startStream($account, $request) {
 			$result = array();
 			$params = $request->params;
-			$stream = new BVRespStream($request);
+			$stream = new WPRRespStream($request);
 			if ($request->isAPICall()) {
-				$stream = new BVHttpStream($request);
+				$stream = new WPRHttpStream($request);
 				if (!$stream->connect()) {
 					$apicallstatus = array(
 						"httperror" => "Cannot Open Connection to Host",
@@ -75,28 +75,31 @@ if (!class_exists('BVRespStream')) :
 		}
 	}
 
-class BVRespStream extends BVStream {
+class WPRRespStream extends WPRStream {
 	public $bvboundry;
 
 	function __construct($request) {
 		parent::__construct($request);
-		$this->bvboundry = $request->bvboundry;
+		// Restrict boundary to safe chars so raw echo cannot inject into response (XSS).
+		$raw = isset($request->bvboundry) ? (string) $request->bvboundry : '';
+		$sanitized = preg_replace('/[^a-zA-Z0-9_-]/', '', $raw);
+		$this->bvboundry = $sanitized !== '' ? $sanitized : 'bvstream';
 	}
 
 	public function writeChunk($chunk) {
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- chunk should not be escaped
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- bvboundry sanitized in constructor; raw stream protocol (not HTML), chunk must not be escaped or stream is corrupted
 		echo $this->bvboundry . "ckckckckck" . $chunk . $this->bvboundry . "ckckckckck";
 	}
 	public function endStream() {
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- bvboundry sanitized in constructor; raw stream protocol (not HTML)
 		echo $this->bvboundry . "rerererere";
 
 		return array();
 	}
 }
 
-class BVHttpStream extends BVStream {
-	var $user_agent = 'BVHttpStream';
+class WPRHttpStream extends WPRStream {
+	var $user_agent = 'WPRHttpStream';
 	var $host;
 	var $port;
 	var $timeout = 20;

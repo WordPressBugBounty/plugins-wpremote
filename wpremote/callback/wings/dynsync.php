@@ -1,11 +1,11 @@
 <?php
 
 if (!defined('ABSPATH')) exit;
-if (!class_exists('BVDynSyncCallback')) :
+if (!class_exists('WPRDynSyncCallback')) :
 	
 require_once dirname( __FILE__ ) . '/../../wp_dynsync.php';
 
-class BVDynSyncCallback extends BVCallbackBase {
+class WPRDynSyncCallback extends WPRCallbackBase {
 	public $db;
 	public $settings;
 

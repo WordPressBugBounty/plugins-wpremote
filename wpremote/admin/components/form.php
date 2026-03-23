@@ -12,7 +12,10 @@
 				<input type="text" placeholder="Enter your email address to continue" id="email" name="email" class="d-inline search" required>
 				<h5 class="check-box-text"><input type="checkbox" class="check-box" name="consent" value="1" required>
 				<label>I agree to WP Remote <a href="https://wpremote.com/tos/" target="_blank" rel="noopener noreferrer">Terms of Service</a> and <a href="https://wpremote.com/privacy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a></label></h5>
-				<button id="get-started" type="submit" class="e-mail-button"><span>Get Started</span></button>		
+				<button id="get-started" type="submit" class="e-mail-button"><span>Get Started</span></button>
+				<div style="margin-top: 12px;">
+					<a href="#" id="wpr-show-connection-key-link" style="text-decoration: underline;">Connection key</a>
+				</div>
 			</form>
 		</div>
 	</div>

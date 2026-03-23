@@ -1,9 +1,9 @@
 <?php
 if (!defined('ABSPATH')) exit;
-if (!class_exists('BVFSCallback')) :
+if (!class_exists('WPRFSCallback')) :
 require_once dirname( __FILE__ ) . '/../streams.php';
 
-class BVFSCallback extends BVCallbackBase {
+class WPRFSCallback extends WPRCallbackBase {
 	public $stream;
 	public $account;
 
@@ -360,7 +360,7 @@ class BVFSCallback extends BVCallbackBase {
 
 	function process($request) {
 		$params = $request->params;
-		$stream_init_info = BVStream::startStream($this->account, $request);
+		$stream_init_info = WPRStream::startStream($this->account, $request);
 
 		if (array_key_exists('stream', $stream_init_info)) {
 			$this->stream = $stream_init_info['stream'];

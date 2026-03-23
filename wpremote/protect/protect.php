@@ -1,7 +1,7 @@
 <?php
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtect_V636')) :
+if (!class_exists('WPRProtect_V639')) :
 require_once dirname( __FILE__ ) . '/logger.php';
 require_once dirname( __FILE__ ) . '/ipstore.php';
 require_once dirname( __FILE__ ) . '/request.php';
@@ -11,7 +11,7 @@ require_once dirname( __FILE__ ) . '/fw.php';
 require_once dirname( __FILE__ ) . '/lp.php';
 require_once dirname( __FILE__ ) . '/../helper.php';
 
-class WPRProtect_V636 {
+class WPRProtect_V639 {
 	public static $settings;
 	public static $db;
 	public static $info;
@@ -26,13 +26,13 @@ class WPRProtect_V636 {
 			return false;
 		}
 
-		if ($mode == WPRProtect_V636::MODE_PREPEND) {
+		if ($mode == WPRProtect_V639::MODE_PREPEND) {
 			$config_file = MCDATAPATH .  MCCONFKEY . '-' . 'mc.conf';
-			$config = WPRProtectUtils_V636::parseFile($config_file);
+			$config = WPRProtectUtils_V639::parseFile($config_file);
 
 			if (empty($config['time']) || !($config['time'] > time() - (48*3600)) ||
 					!isset($config['mc_conf_version']) ||
-					(WPRProtect_V636::CONF_VERSION !== $config['mc_conf_version'])) {
+					(WPRProtect_V639::CONF_VERSION !== $config['mc_conf_version'])) {
 				return false;
 
 			}
@@ -40,15 +40,15 @@ class WPRProtect_V636 {
 			$brand_name = array_key_exists('brandname', $config) ? $config['brandname'] : 'Protect';
 			$request_ip_header = array_key_exists('ipheader', $config) ? $config['ipheader'] : null;
 			$req_config = array_key_exists('reqconfig', $config) ? $config['reqconfig'] : array();
-			$request = new WPRProtectRequest_V636($request_ip_header, $req_config);
+			$request = new WPRProtectRequest_V639($request_ip_header, $req_config);
 			$fw_config = array_key_exists('fw', $config) ? $config['fw'] : array();
 
-			WPRProtectFW_V636::getInstance($mode, $request, $fw_config, $brand_name)->init();
+			WPRProtectFW_V639::getInstance($mode, $request, $fw_config, $brand_name)->init();
 		} else {
 			$plug_config = self::$settings->getOption(self::$info->services_option_name);
 			$config = array_key_exists('protect', $plug_config) ? $plug_config['protect'] : array();
 			if (!is_array($config) || !array_key_exists('mc_conf_version', $config) ||
-					(WPRProtect_V636::CONF_VERSION !== $config['mc_conf_version'])) {
+					(WPRProtect_V639::CONF_VERSION !== $config['mc_conf_version'])) {
 
 				return false;
 			}
@@ -56,25 +56,25 @@ class WPRProtect_V636 {
 			$brand_name = self::$info->getBrandName();
 			$request_ip_header = array_key_exists('ipheader', $config) ? $config['ipheader'] : null;
 			$req_config = array_key_exists('reqconfig', $config) ? $config['reqconfig'] : array();
-			$request = new WPRProtectRequest_V636($request_ip_header, $req_config);
+			$request = new WPRProtectRequest_V639($request_ip_header, $req_config);
 			$fw_config = array_key_exists('fw', $config) ? $config['fw'] : array();
 			$lp_config = array_key_exists('lp', $config) ? $config['lp'] : array();
 
-			WPRProtectFW_V636::getInstance($mode, $request, $fw_config, $brand_name)->init();
-			WPRProtectLP_V636::getInstance($request, $lp_config, $brand_name)->init();
+			WPRProtectFW_V639::getInstance($mode, $request, $fw_config, $brand_name)->init();
+			WPRProtectLP_V639::getInstance($request, $lp_config, $brand_name)->init();
 		}
 	}
 
 	public static function uninstall() {
 		self::$settings->deleteOption('bvptconf');
 		self::$settings->deleteOption('bvptplug');
-		WPRProtectIpstore_V636::uninstall();
-		WPRProtectFW_V636::uninstall();
-		WPRProtectLP_V636::uninstall();
+		WPRProtectIpstore_V639::uninstall();
+		WPRProtectFW_V639::uninstall();
+		WPRProtectLP_V639::uninstall();
 
-		WPRProtect_V636::removeWPPrepend();
-		WPRProtect_V636::removePHPPrepend();
-		WPRProtect_V636::removeMCData();
+		WPRProtect_V639::removeWPPrepend();
+		WPRProtect_V639::removePHPPrepend();
+		WPRProtect_V639::removeMCData();
 
 		return true;
 	}
@@ -95,31 +95,31 @@ class WPRProtect_V636 {
 
 		$pattern = "@include '" . rtrim(ABSPATH, DIRECTORY_SEPARATOR) . "/malcare-waf.php" . "';";
 		
-		WPRProtectUtils_V636::fileRemovePattern($fname, $pattern);
+		WPRProtectUtils_V639::fileRemovePattern($fname, $pattern);
 	}
 
 	private static function removePHPPrepend() {
-		WPRProtect_V636::removeHtaccessPrepend();
-		WPRProtect_V636::removeUseriniPrepend();
+		WPRProtect_V639::removeHtaccessPrepend();
+		WPRProtect_V639::removeUseriniPrepend();
 	}
 
 	private static function removeHtaccessPrepend() {
 		$pattern = "/# MalCare WAF(.|\n)*# END MalCare WAF/i";
 
-		WPRProtectUtils_V636::fileRemovePattern(rtrim(ABSPATH, DIRECTORY_SEPARATOR) . "/.htaccess", $pattern, true);
+		WPRProtectUtils_V639::fileRemovePattern(rtrim(ABSPATH, DIRECTORY_SEPARATOR) . "/.htaccess", $pattern, true);
 	}
 
 	private static function removeUseriniPrepend() {
 		$pattern = "/; MalCare WAF(.|\n)*; END MalCare WAF/i";
 
-		WPRProtectUtils_V636::fileRemovePattern(rtrim(ABSPATH, DIRECTORY_SEPARATOR) . "/.user.ini", $pattern, true);
+		WPRProtectUtils_V639::fileRemovePattern(rtrim(ABSPATH, DIRECTORY_SEPARATOR) . "/.user.ini", $pattern, true);
 	}
 
 	private static function removeMCData() {
 		$content_dir = defined('WP_CONTENT_DIR') ? WP_CONTENT_DIR : rtrim(ABSPATH, DIRECTORY_SEPARATOR) . "/wp-content";
 		$mc_data_dir = $content_dir . "/mc_data";
 
-		WPRProtectUtils_V636::rrmdir($mc_data_dir);
+		WPRProtectUtils_V639::rrmdir($mc_data_dir);
 	}
 }
 endif;
