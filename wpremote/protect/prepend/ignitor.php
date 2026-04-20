@@ -4,5 +4,5 @@ if (!defined('MCDATAPATH')) exit;
 if (defined('MCCONFKEY')) {
 	require_once dirname( __FILE__ ) . '/../protect.php';
 
-	WPRProtect_V639::init(WPRProtect_V639::MODE_PREPEND);
+	WPRProtect_V644::init(WPRProtect_V644::MODE_PREPEND);
 }

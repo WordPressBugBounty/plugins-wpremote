@@ -2,8 +2,8 @@
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!trait_exists('WPRProtectFWRuleArrayFunc_V639')) :
-trait WPRProtectFWRuleArrayFunc_V639 {
+if (!trait_exists('WPRProtectFWRuleArrayFunc_V644')) :
+trait WPRProtectFWRuleArrayFunc_V644 {
 	private function _rf_inArray() {
 		$args = $this->processRuleFunctionParams(
 			'inArray',
@@ -16,13 +16,13 @@ trait WPRProtectFWRuleArrayFunc_V639 {
 		$strict = isset($args[2]) ? $args[2] : false;
 
 		if (!is_array($array)) {
-			throw new WPRProtectRuleError_V639(
+			throw new WPRProtectRuleError_V644(
 				$this->addExState("inArray: 2nd param is not an array")
 			);
 		}
 
 		if (!is_bool($strict)) {
-			throw new WPRProtectRuleError_V639(
+			throw new WPRProtectRuleError_V644(
 				$this->addExState("inArray: 3rd param is not a boolean")
 			);
 		}
@@ -53,7 +53,7 @@ trait WPRProtectFWRuleArrayFunc_V639 {
 				}
 			}
 		} else {
-			throw new WPRProtectRuleError_V639(
+			throw new WPRProtectRuleError_V644(
 				$this->addExState("recInArray: Expects an array")
 			);
 		}
@@ -72,11 +72,11 @@ trait WPRProtectFWRuleArrayFunc_V639 {
 		$array = $args[1];
 
 		if (!is_array($array)) {
-			throw new WPRProtectRuleError_V639(
+			throw new WPRProtectRuleError_V644(
 				$this->addExState("arrayKeyExists: Array must be of type array")
 			);
 		} elseif (!is_string($key) && !is_int($key)) {
-			throw new WPRProtectRuleError_V639(
+			throw new WPRProtectRuleError_V644(
 				$this->addExState("arrayKeyExists: Key must be of type string or int")
 			);
 		}
@@ -123,7 +123,7 @@ trait WPRProtectFWRuleArrayFunc_V639 {
 
 		foreach ($keys as $key) {
 			if (!is_int($key) && !is_string($key)) {
-				throw new WPRProtectRuleError_V639(
+				throw new WPRProtectRuleError_V644(
 					$this->addExState("hasAnyArrayKey: Key must be of type string or int")
 				);
 			}
@@ -149,7 +149,7 @@ trait WPRProtectFWRuleArrayFunc_V639 {
 
 		foreach ($keys as $key) {
 			if (!is_int($key) && !is_string($key)) {
-				throw new WPRProtectRuleError_V639(
+				throw new WPRProtectRuleError_V644(
 					$this->addExState("digArray: Keys must be a valid array of string, or integer type")
 				);
 			}
@@ -171,7 +171,7 @@ trait WPRProtectFWRuleArrayFunc_V639 {
 
 		foreach ($keys as $key) {
 			if (!is_int($key) && !is_string($key)) {
-				throw new WPRProtectRuleError_V639(
+				throw new WPRProtectRuleError_V644(
 					$this->addExState("filterArray: Keys must be a valid array of string, or integer type")
 				);
 			}
@@ -192,7 +192,7 @@ trait WPRProtectFWRuleArrayFunc_V639 {
 		$key = $args[1];
 
 		if (!is_string($key) && !is_int($key)) {
-			throw new WPRProtectRuleError_V639(
+			throw new WPRProtectRuleError_V644(
 				$this->addExState("getArrayVal: Key must be a valid string or integer")
 			);
 		}
@@ -273,7 +273,7 @@ trait WPRProtectFWRuleArrayFunc_V639 {
 
 		foreach ($array as $element) {
 			if (!is_scalar($element)) {
-				throw new WPRProtectRuleError_V639(
+				throw new WPRProtectRuleError_V644(
 					$this->addExState("arrayJoin: Array element must be of scalar type")
 				);
 			}

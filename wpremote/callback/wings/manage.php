@@ -7,7 +7,7 @@ class WPRManageCallback extends WPRCallbackBase {
 	public $skin;
 	public $bvinfo;
 
-	const MANAGE_WING_VERSION = 1.8;
+	const MANAGE_WING_VERSION = 1.9;
 
 	public function __construct($callback_handler) {
 		$this->settings = $callback_handler->settings;
@@ -274,13 +274,52 @@ class WPRManageCallback extends WPRCallbackBase {
 
 	function upgradeCore($args) {
 		global $wp_filesystem, $wp_version;
-		$core = $this->settings->getTransient('update_core');
-		$core_update_index = intval($args['coreupdateindex']);
-		if (isset($core->updates) && !empty($core->updates)) {
-			$to_update = $core->updates[$core_update_index];
+		$to_update = null;
+		
+		// Prefer validated update data from server (BlogVault), then site transient.
+		// This protects upgrades from poisoned/overridden transients.
+		$validated = null;
+		if (isset($args['core_validated_update']) && !empty($args['core_validated_update'])) {
+			$validated = $args['core_validated_update'];
+		}
+
+		if (!empty($validated) && is_array($validated) &&
+			isset($validated['version']) && !empty($validated['version']) &&
+			isset($validated['response']) && ($validated['response'] === 'upgrade')) {
+			$to_update = new stdClass();
+			$to_update->version = $validated['version'];
+			$to_update->response = $validated['response'];
+			$to_update->download = isset($validated['download']) ? $validated['download'] : '';
+
+			// Preserve all packages keys if provided; Core_Upgrader expects packages-like data.
+			if (isset($validated['packages']) && is_array($validated['packages'])) {
+				$to_update->packages = (object)$validated['packages'];
+			} else {
+				$to_update->packages = new stdClass();
+			}
+
+			// WordPress uses either ->package or ->packages->full depending on path/version.
+			if (isset($to_update->packages->full) && !empty($to_update->packages->full)) {
+				$to_update->package = $to_update->packages->full;
+			} else {
+				$to_update->package = $to_update->download;
+				$to_update->packages->full = $to_update->download;
+			}
 		} else {
+			// Fallback to transient-based approach
+			$core = $this->settings->getTransient('update_core');
+			$core_update_index = intval($args['coreupdateindex']);
+			if (isset($core->updates) && !empty($core->updates)) {
+				$to_update = $core->updates[$core_update_index];
+			} else {
+				return array('status' => "Error", "message" => "Updates not available");
+			}
+		}
+		
+		if (!$to_update) {
 			return array('status' => "Error", "message" => "Updates not available");
 		}
+		
 		$resp = array("Core_Upgrader", class_exists('Core_Upgrader'));
 		if (version_compare($wp_version, '3.1.9', '>')) {
 			$core   = new Core_Upgrader();
@@ -343,6 +382,7 @@ class WPRManageCallback extends WPRCallbackBase {
 	function bv_plugin_bulk_upgrade($upgrader, $_plugins) {
 		global $wp_version;
 		$plugins = array_keys($_plugins);
+		$current = get_site_transient('update_plugins');
 		$args = array();
 		$defaults = array(
 			'clear_update_cache' => true,
@@ -373,27 +413,36 @@ class WPRManageCallback extends WPRCallbackBase {
 			$upgrader->update_current++;
 			$upgrader->skin->plugin_info = get_plugin_data(WP_PLUGIN_DIR . '/' . $plugin, false, true);
 			$upgrader->skin->plugin_active = is_plugin_active($plugin);
-			if ( isset( $_plugins[$plugin]['requires'] ) && function_exists('is_wp_version_compatible') && !is_wp_version_compatible( $_plugins[$plugin]['requires'] ) ) {
+			$plugin_upgrade_data = $_plugins[$plugin];
+			if (isset($current->response[$plugin])) {
+				if (isset($current->response[$plugin]->requires)) {
+					$plugin_upgrade_data['requires'] = $current->response[$plugin]->requires;
+				}
+				if (isset($current->response[$plugin]->requires_php)) {
+					$plugin_upgrade_data['requires_php'] = $current->response[$plugin]->requires_php;
+				}
+			}
+			if ( isset( $plugin_upgrade_data['requires'] ) && function_exists('is_wp_version_compatible') && !is_wp_version_compatible( $plugin_upgrade_data['requires'] ) ) {
 				$result = new WP_Error(
 					'incompatible_wp_required_version',
 					sprintf(
 						__( 'Your WordPress version is %1$s, however the new plugin version requires %2$s.' ),
 						$wp_version,
-						$_plugins[$plugin]['requires']
+						$plugin_upgrade_data['requires']
 					)
 				);
 
 				$upgrader->skin->before( $result );
 				$upgrader->skin->error( $result );
 				$upgrader->skin->after();
-			} elseif ( isset( $_plugins[$plugin]['requires_php'] ) && function_exists('is_php_version_compatible') && !is_php_version_compatible( $_plugins[$plugin]['requires_php'] ) ) {
+			} elseif ( isset( $plugin_upgrade_data['requires_php'] ) && function_exists('is_php_version_compatible') && !is_php_version_compatible( $plugin_upgrade_data['requires_php'] ) ) {
 
 				$result = new WP_Error(
 					'incompatible_php_required_version',
 					sprintf(
 						__( 'The PHP version on your server is %1$s, however the new plugin version requires %2$s.' ),
 						PHP_VERSION,
-						$_plugins[$plugin]['requires_php']
+						$plugin_upgrade_data['requires_php']
 					)
 				);
 
@@ -505,6 +554,7 @@ class WPRManageCallback extends WPRCallbackBase {
 	function bv_theme_bulk_upgrade($upgrader, $_themes) {
 		global $wp_version;
 		$themes = array_keys($_themes);
+		$current = get_site_transient('update_themes');
 		$args = array();
 		$defaults = array(
 			'clear_update_cache' => true,
@@ -536,26 +586,35 @@ class WPRManageCallback extends WPRCallbackBase {
 		foreach ($themes as $theme) {
 			$upgrader->update_current++;
 			$upgrader->skin->theme_info = $upgrader->theme_info($theme);
-			if ( isset( $_themes[$theme]['requires'] ) && function_exists('is_wp_version_compatible') && !is_wp_version_compatible( $_themes[$theme]['requires'] ) ) {
+			$theme_upgrade_data = $_themes[$theme];
+			if (isset($current->response[$theme])) {
+				if (isset($current->response[$theme]['requires'])) {
+					$theme_upgrade_data['requires'] = $current->response[$theme]['requires'];
+				}
+				if (isset($current->response[$theme]['requires_php'])) {
+					$theme_upgrade_data['requires_php'] = $current->response[$theme]['requires_php'];
+				}
+			}
+			if ( isset( $theme_upgrade_data['requires'] ) && function_exists('is_wp_version_compatible') && !is_wp_version_compatible( $theme_upgrade_data['requires'] ) ) {
 				$result = new WP_Error(
 					'incompatible_wp_required_version',
 					sprintf(
 						__( 'Your WordPress version is %1$s, however the new theme version requires %2$s.' ),
 						$wp_version,
-						$_themes[$theme]['requires']
+						$theme_upgrade_data['requires']
 					)
 				);
 
 				$upgrader->skin->before( $result );
 				$upgrader->skin->error( $result );
 				$upgrader->skin->after();
-			} elseif ( isset( $_themes[$theme]['requires_php'] ) && function_exists('is_php_version_compatible') && !is_php_version_compatible( $_themes[$theme]['requires_php'] ) ) {
+			} elseif ( isset( $theme_upgrade_data['requires_php'] ) && function_exists('is_php_version_compatible') && !is_php_version_compatible( $theme_upgrade_data['requires_php'] ) ) {
 				$result = new WP_Error(
 					'incompatible_php_required_version',
 					sprintf(
 						__( 'The PHP version on your server is %1$s, however the new theme version requires %2$s.' ),
 						PHP_VERSION,
-						$_themes[$theme]['requires_php']
+						$theme_upgrade_data['requires_php']
 					)
 				);
 

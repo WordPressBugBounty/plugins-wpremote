@@ -1,8 +1,8 @@
 <?php
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtectUtils_V639')) :
-class WPRProtectUtils_V639 {
+if (!class_exists('WPRProtectUtils_V644')) :
+class WPRProtectUtils_V644 {
 	public static function getIP($ip_header) {
 		$ip = null;
 		if (is_array($ip_header)) {
@@ -130,7 +130,7 @@ class WPRProtectUtils_V639 {
 
 		if (is_array($val)) {
 			foreach ($val as $e) {
-				$length += WPRProtectUtils_V639::getLength($e);
+				$length += WPRProtectUtils_V644::getLength($e);
 			}
 
 			return $length;

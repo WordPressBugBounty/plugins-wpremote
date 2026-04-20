@@ -70,7 +70,9 @@ class WPRWPAdmin {
 
 	public function menu() {
 		$brand = $this->bvinfo->getPluginWhitelabelInfo();
-		if (!array_key_exists('hide', $brand) && !array_key_exists('hide_from_menu', $brand)) {
+		$can_whitelabel = $this->bvinfo->canWhiteLabel();
+		$hide_from_menu = array_key_exists('hide', $brand) || array_key_exists('hide_from_menu', $brand);
+		if (!$can_whitelabel || !$hide_from_menu) {
 			$bname = $this->bvinfo->getBrandName();
 			$icon = $this->bvinfo->getBrandIcon();
 			add_menu_page($bname, $bname, 'manage_options', $this->bvinfo->plugname,
