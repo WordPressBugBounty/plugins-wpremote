@@ -7,7 +7,7 @@ class WPRManageCallback extends WPRCallbackBase {
 	public $skin;
 	public $bvinfo;
 
-	const MANAGE_WING_VERSION = 1.9;
+	const MANAGE_WING_VERSION = 2.0;
 
 	public function __construct($callback_handler) {
 		$this->settings = $callback_handler->settings;
@@ -56,7 +56,6 @@ class WPRManageCallback extends WPRCallbackBase {
 		$this->safe_require_once(ABSPATH.'wp-admin/includes/user.php');
 		$this->safe_require_once(ABSPATH.'wp-admin/includes/upgrade.php');
 		$this->safe_require_once(ABSPATH.'wp-admin/includes/update.php');
-		$this->safe_require_once(ABSPATH.'wp-admin/includes/update-core.php');
 	}
 
 	function edit($args) {
@@ -369,6 +368,7 @@ class WPRManageCallback extends WPRCallbackBase {
 
 				$wp_filesystem->chmod($wp_dir.'wp-admin/includes/update-core.php', FS_CHMOD_FILE);
 
+				$this->safe_require_once(ABSPATH.'wp-admin/includes/update-core.php');
 				$result = update_core($working_dir, $wp_dir);
 
 				if (is_wp_error($result)) {

@@ -5,7 +5,7 @@ if (!class_exists('WPRCallbackBase')) :
 
 class WPRCallbackBase {
 
-	public static $wing_infos = array("MANAGE_WING_VERSION" => '1.9',
+	public static $wing_infos = array("MANAGE_WING_VERSION" => '2.0',
 		"ACTLOG_WING_VERSION" => '1.0',
 		"DYNSYNC_WING_VERSION" => '1.0',
 		"UPGRADER_WING_VERSION" => '1.1',

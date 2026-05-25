@@ -6,7 +6,7 @@ Donate link: https://wpremote.com/
 Requires at least: 4.0
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 6.44
+Stable tag: 6.47
 License: GPLv2 or later
 License URI: [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -46,6 +46,9 @@ Having an account is necessary to use our service, and your email address serves
 In addition, we may use your email address to notify you about any changes or updates that we make to our service, as well as any new features or services that we may offer to help enhance your user experience.
 
 == CHANGELOG ==
+= 6.47 =
+* Fix: Prevent stale WordPress core update cleanup rules from deleting files added by newer WordPress core packages.
+
 = 6.44 =
 * Tweak: Improved the WP core updates flow.
 * Tweak: Improved the plugin auto-install flow.
