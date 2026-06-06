@@ -1,8 +1,8 @@
 <?php
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtectLoggerDB_V647')) :
-class WPRProtectLoggerDB_V647 {
+if (!class_exists('WPRProtectLoggerDB_V648')) :
+class WPRProtectLoggerDB_V648 {
 	private $tablename;
 	private $bv_tablename;
 
@@ -10,16 +10,16 @@ class WPRProtectLoggerDB_V647 {
 
 	function __construct($tablename) {
 		$this->tablename = $tablename;
-		$this->bv_tablename = WPRProtect_V647::$db->getBVTable($tablename);
+		$this->bv_tablename = WPRProtect_V648::$db->getBVTable($tablename);
 	}
 
 	public function log($data) {
 		if (is_array($data)) {
-			if (WPRProtect_V647::$db->rowsCount($this->bv_tablename) > WPRProtectLoggerDB_V647::MAXROWCOUNT) {
-				WPRProtect_V647::$db->deleteRowsFromtable($this->tablename, 1);
+			if (WPRProtect_V648::$db->rowsCount($this->bv_tablename) > WPRProtectLoggerDB_V648::MAXROWCOUNT) {
+				WPRProtect_V648::$db->deleteRowsFromtable($this->tablename, 1);
 			}
 
-			WPRProtect_V647::$db->replaceIntoBVTable($this->tablename, $data);
+			WPRProtect_V648::$db->replaceIntoBVTable($this->tablename, $data);
 		}
 	}
 }

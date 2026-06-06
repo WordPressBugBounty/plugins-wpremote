@@ -140,7 +140,7 @@ if (!class_exists('WPRWPPHPErrorMonitoring')) :
 			$data["md5"] = md5($code . '-' . $message . '-' . $line . '-' . $file . '-' . $serialized_backtrace);
 
 			if (!self::canCaptureError($data['md5'])) {
-				return;
+				return false;
 			}
 
 			$data["error_code"] = $code;
@@ -155,6 +155,7 @@ if (!class_exists('WPRWPPHPErrorMonitoring')) :
 			$data["request_id"] = WPRInfo::getRequestID();
 
 			self::saveError(maybe_serialize($data));
+			return false;
 		}
 	}
 endif;
