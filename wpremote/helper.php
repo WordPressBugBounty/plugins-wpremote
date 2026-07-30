@@ -75,6 +75,19 @@ if (!class_exists('WPRHelper')) :
 			return $updated_subject;
 		}
 
+		public static function safeStrReplaceFirst($search, $replace, $subject) {
+			if (!is_string($search) || !is_string($replace) || !is_string($subject) || $search === '') {
+				return $subject;
+			}
+
+			$position = strpos($subject, $search);
+			if ($position === false) {
+				return $subject;
+			}
+
+			return substr_replace($subject, $replace, $position, strlen($search));
+		}
+
 		public static function preInitWPHook($hook_name, $function_name, $priority, $accepted_args) {
 			global $wp_filter;
 

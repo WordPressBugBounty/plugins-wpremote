@@ -2,8 +2,8 @@
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!trait_exists('WPRProtectFWRuleStringFunc_V648')) :
-trait WPRProtectFWRuleStringFunc_V648 {
+if (!trait_exists('WPRProtectFWRuleStringFunc_V662')) :
+trait WPRProtectFWRuleStringFunc_V662 {
 	private function _rf_isNumeric() {
 		$args = $this->processRuleFunctionParams(
 			'isNumeric',
@@ -238,7 +238,7 @@ trait WPRProtectFWRuleStringFunc_V648 {
 				}
 			}
 		} else {
-			throw new WPRProtectRuleError_V648(
+			throw new WPRProtectRuleError_V662(
 				$this->addExState("containsAnySubstring: Expects an array of substrings.")
 			);
 		}
@@ -273,7 +273,7 @@ trait WPRProtectFWRuleStringFunc_V648 {
 		$offset = isset($args[2]) ? $args[2] : 0;
 
 		if (!is_int($offset)) {
-			throw new WPRProtectRuleError_V648(
+			throw new WPRProtectRuleError_V662(
 				$this->addExState("strPos: Offset should be an integer")
 			);
 		}
@@ -318,18 +318,132 @@ trait WPRProtectFWRuleStringFunc_V648 {
 		$limit = isset($args[2]) ? $args[2] : PHP_INT_MAX;
 
 		if (empty($separator)) {
-			throw new WPRProtectRuleError_V648(
+			throw new WPRProtectRuleError_V662(
 				$this->addExState("splitString: Separator cannot be empty")
 			);
 		}
 
 		if (!is_int($limit)) {
-			throw new WPRProtectRuleError_V648(
+			throw new WPRProtectRuleError_V662(
 				$this->addExState("splitString: Limit should be an integer")
 			);
 		}
 
 		return explode($separator, $str, $limit);
+	}
+
+	private function _rf_urlDecode() {
+		$args = $this->processRuleFunctionParams(
+			'urlDecode',
+			func_num_args(),
+			func_get_args(),
+			1
+		);
+		$value = $args[0];
+		$recursive = isset($args[1]) ? $args[1] : true;
+
+		if (!is_bool($recursive)) {
+			throw new WPRProtectRuleError_V662(
+				$this->addExState("urlDecode: Recursive flag should be a boolean")
+			);
+		}
+
+		return $this->normalizeStringValue($value, 'urlDecode', $recursive);
+	}
+
+	private function _rf_rawUrlDecode() {
+		$args = $this->processRuleFunctionParams(
+			'rawUrlDecode',
+			func_num_args(),
+			func_get_args(),
+			1
+		);
+		$value = $args[0];
+		$recursive = isset($args[1]) ? $args[1] : true;
+
+		if (!is_bool($recursive)) {
+			throw new WPRProtectRuleError_V662(
+				$this->addExState("rawUrlDecode: Recursive flag should be a boolean")
+			);
+		}
+
+		return $this->normalizeStringValue($value, 'rawUrlDecode', $recursive);
+	}
+
+	private function _rf_htmlEntityDecode() {
+		$args = $this->processRuleFunctionParams(
+			'htmlEntityDecode',
+			func_num_args(),
+			func_get_args(),
+			1
+		);
+		$value = $args[0];
+		$recursive = isset($args[1]) ? $args[1] : true;
+
+		if (!is_bool($recursive)) {
+			throw new WPRProtectRuleError_V662(
+				$this->addExState("htmlEntityDecode: Recursive flag should be a boolean")
+			);
+		}
+
+		return $this->normalizeStringValue($value, 'htmlEntityDecode', $recursive);
+	}
+
+	private function _rf_stripSlashes() {
+		$args = $this->processRuleFunctionParams(
+			'stripSlashes',
+			func_num_args(),
+			func_get_args(),
+			1
+		);
+		$value = $args[0];
+		$recursive = isset($args[1]) ? $args[1] : true;
+
+		if (!is_bool($recursive)) {
+			throw new WPRProtectRuleError_V662(
+				$this->addExState("stripSlashes: Recursive flag should be a boolean")
+			);
+		}
+
+		return $this->normalizeStringValue($value, 'stripSlashes', $recursive);
+	}
+
+	private function normalizeStringValue($value, $operation, $recursive, $depth = 1) {
+		if ($depth > WPRProtectFWRuleEngine_V662::MAX_DEPTH_TO_ALLOWED_TYPE_FUNC) {
+			return null;
+		}
+
+		if (is_array($value)) {
+			if (!$recursive) {
+				return $value;
+			}
+
+			$normalized = array();
+			foreach ($value as $key => $item) {
+				$normalized[$key] = $this->normalizeStringValue($item, $operation, $recursive, $depth + 1);
+			}
+
+			return $normalized;
+		}
+
+		if (!is_string($value)) {
+			return $value;
+		}
+
+		switch ($operation) {
+		case 'urlDecode':
+			return urldecode($value);
+		case 'rawUrlDecode':
+			return rawurldecode($value);
+		case 'htmlEntityDecode':
+			return html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+		case 'stripSlashes':
+			return stripslashes($value);
+		}
+
+		throw new WPRProtectRuleError_V662(
+			$this->addExState("normalizeStringValue: Invalid normalization operation")
+		);
 	}
 }
 endif;

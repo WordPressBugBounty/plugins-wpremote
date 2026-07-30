@@ -2,8 +2,8 @@
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!trait_exists('WPRProtectFWRuleRequestFunc_V648')) :
-trait WPRProtectFWRuleRequestFunc_V648 {
+if (!trait_exists('WPRProtectFWRuleRequestFunc_V662')) :
+trait WPRProtectFWRuleRequestFunc_V662 {
 	private function _rf_getAction() {
 		$args = $this->processRuleFunctionParams(
 			'getAction',
@@ -55,6 +55,10 @@ trait WPRProtectFWRuleRequestFunc_V648 {
 			func_get_args()
 		);
 
+		if (!empty($args)) {
+			return $this->request->getHeaders(...$args);
+		}
+
 		return $this->request->getHeaders();
 	}
 
@@ -66,7 +70,7 @@ trait WPRProtectFWRuleRequestFunc_V648 {
 		);
 
 		if (!empty($args)) {
-			return $this->request->getPostParams($args);
+			return $this->request->getPostParams(...$args);
 		}
 
 		return $this->request->getPostParams();
@@ -90,7 +94,7 @@ trait WPRProtectFWRuleRequestFunc_V648 {
 		);
 
 		if (!empty($args)) {
-			return $this->request->getGetParams($args);
+			return $this->request->getGetParams(...$args);
 		}
 
 		return $this->request->getGetParams();
@@ -104,7 +108,7 @@ trait WPRProtectFWRuleRequestFunc_V648 {
 		);
 
 		if (!empty($args)) {
-			return $this->request->getCookies($args);
+			return $this->request->getCookies(...$args);
 		}
 
 		return $this->request->getCookies();
@@ -118,7 +122,7 @@ trait WPRProtectFWRuleRequestFunc_V648 {
 		);
 
 		if (!empty($args)) {
-			return $this->request->getFiles($args);
+			return $this->request->getFiles(...$args);
 		}
 
 		return $this->request->getFiles();
@@ -132,7 +136,7 @@ trait WPRProtectFWRuleRequestFunc_V648 {
 		);
 
 		if (!empty($args)) {
-			return $this->request->getFileNames($args);
+			return $this->request->getFileNames(...$args);
 		}
 
 		return $this->request->getFileNames();
@@ -326,6 +330,94 @@ trait WPRProtectFWRuleRequestFunc_V648 {
 		return $this->request->getRawBody();
 	}
 
+	private function _rf_getUploadedFileContent() {
+		$args = $this->processRuleFunctionParams(
+			'getUploadedFileContent',
+			func_num_args(),
+			func_get_args(),
+			2
+		);
+
+		return $this->request->getUploadedFileContent(
+			$args[0],
+			$args[1],
+			isset($args[2]) ? $args[2] : null
+		);
+	}
+
+	private function _rf_getUploadedFileName() {
+		$args = $this->processRuleFunctionParams(
+			'getUploadedFileName',
+			func_num_args(),
+			func_get_args(),
+			1
+		);
+
+		return $this->request->getUploadedFileMeta(
+			$args[0],
+			'name',
+			isset($args[1]) ? $args[1] : null
+		);
+	}
+
+	private function _rf_getUploadedFileType() {
+		$args = $this->processRuleFunctionParams(
+			'getUploadedFileType',
+			func_num_args(),
+			func_get_args(),
+			1
+		);
+
+		return $this->request->getUploadedFileMeta(
+			$args[0],
+			'type',
+			isset($args[1]) ? $args[1] : null
+		);
+	}
+
+	private function _rf_getUploadedFileSize() {
+		$args = $this->processRuleFunctionParams(
+			'getUploadedFileSize',
+			func_num_args(),
+			func_get_args(),
+			1
+		);
+
+		return $this->request->getUploadedFileMeta(
+			$args[0],
+			'size',
+			isset($args[1]) ? $args[1] : null
+		);
+	}
+
+	private function _rf_getUploadedFileError() {
+		$args = $this->processRuleFunctionParams(
+			'getUploadedFileError',
+			func_num_args(),
+			func_get_args(),
+			1
+		);
+
+		return $this->request->getUploadedFileMeta(
+			$args[0],
+			'error',
+			isset($args[1]) ? $args[1] : null
+		);
+	}
+
+	private function _rf_getUploadedFileContentStatus() {
+		$args = $this->processRuleFunctionParams(
+			'getUploadedFileContentStatus',
+			func_num_args(),
+			func_get_args()
+		);
+
+		return $this->request->getUploadedFileContentStatus(
+			isset($args[0]) ? $args[0] : null,
+			isset($args[1]) ? $args[1] : null
+		);
+	}
+
 	private function _rf_wpUserRoleLevel() {
 		$args = $this->processRuleFunctionParams(
 			'wpUserRoleLevel',
@@ -403,7 +495,7 @@ trait WPRProtectFWRuleRequestFunc_V648 {
 		$user = $this->_rf_getCurrentWPUser();
 
 		if (!array_key_exists('ID', $user)) {
-			throw new WPRProtectRuleError_V648(
+			throw new WPRProtectRuleError_V662(
 				$this->addExState("wpUserId: user's id doesn't exist")
 			);
 		}

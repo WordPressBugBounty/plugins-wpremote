@@ -5,7 +5,7 @@ Plugin URI: https://wpremote.com
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>.
 Author: WP Remote
 Author URI: https://wpremote.com
-Version: 6.48
+Version: 6.62
 Network: True
 License: GPLv2 or later
 License URI: [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
@@ -70,6 +70,7 @@ add_action('wpr_clear_bv_services_config', array($wp_action, 'clear_bv_services_
 ##DISABLE_OTHER_OPTIMIZATION_PLUGINS##
 
 ##WPCLIMODULE##
+
 if (is_admin()) {
 	require_once dirname( __FILE__ ) . '/wp_admin.php';
 	$wpadmin = new WPRWPAdmin($bvsettings, $bvsiteinfo);
@@ -89,8 +90,6 @@ if (is_admin()) {
 	##POPUP_ON_DEACTIVATION##
 	add_action('admin_notices', array($wpadmin, 'activateWarning'));
 	add_action('admin_enqueue_scripts', array($wpadmin, 'wprsecAdminMenu'));
-	##ALPURGECACHEFUNCTION##
-	##ALADMINMENU##
 }
 
 if ((array_key_exists('bvreqmerge', $_POST)) || (array_key_exists('bvreqmerge', $_GET))) { // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
@@ -171,14 +170,14 @@ if (WPRHelper::getRawParam('REQUEST', 'bvplugname') == "wpremote") {
 		if ($bvinfo->isProtectModuleEnabled()) {
 			require_once dirname( __FILE__ ) . '/protect/protect.php';
 			//For backward compatibility.
-			WPRProtect_V648::$settings = new WPRWPSettings();
-			WPRProtect_V648::$db = new WPRWPDb();
-			WPRProtect_V648::$info = new WPRInfo(WPRProtect_V648::$settings);
+			WPRProtect_V662::$settings = new WPRWPSettings();
+			WPRProtect_V662::$db = new WPRWPDb();
+			WPRProtect_V662::$info = new WPRInfo(WPRProtect_V662::$settings);
 
-			add_action('wpr_clear_pt_config', array('WPRProtect_V648', 'uninstall'));
+			add_action('wpr_clear_pt_config', array('WPRProtect_V662', 'uninstall'));
 
 			if ($bvinfo->isActivePlugin()) {
-				WPRProtect_V648::init(WPRProtect_V648::MODE_WP);
+				WPRProtect_V662::init(WPRProtect_V662::MODE_WP);
 			}
 		}
 

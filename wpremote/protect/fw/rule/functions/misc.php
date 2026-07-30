@@ -2,8 +2,8 @@
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!trait_exists('WPRProtectFWRuleMiscFunc_V648')) :
-trait WPRProtectFWRuleMiscFunc_V648 {
+if (!trait_exists('WPRProtectFWRuleMiscFunc_V662')) :
+trait WPRProtectFWRuleMiscFunc_V662 {
 	private function _rf_isTrue() {
 		$args = $this->processRuleFunctionParams(
 			'isTrue',
@@ -38,10 +38,26 @@ trait WPRProtectFWRuleMiscFunc_V648 {
 		$value = $args[0];
 
 		$file = $this->_rf_getFiles($value);
-		if (is_array($file) && in_array('tmp_name', $file)) {
-			return is_uploaded_file($file['tmp_name']);
+		if (!is_array($file) || !array_key_exists('tmp_name', $file)) {
+			return false;
 		}
-		
+
+		$paths = array($file['tmp_name']);
+		while (!empty($paths)) {
+			$path = array_pop($paths);
+
+			if (is_array($path)) {
+				foreach ($path as $nested_path) {
+					$paths[] = $nested_path;
+				}
+				continue;
+			}
+
+			if (is_string($path) && $path !== '' && is_uploaded_file($path)) {
+				return true;
+			}
+		}
+
 		return false;
 	}
 
@@ -56,7 +72,7 @@ trait WPRProtectFWRuleMiscFunc_V648 {
 		$name = $args[0];
 
 		if (!array_key_exists($name, $this->variables)) {
-			throw new WPRProtectRuleError_V648(
+			throw new WPRProtectRuleError_V662(
 				$this->addExState("UndefinedVariableError: " . $name . " is not defined.")
 			);
 		}
@@ -117,7 +133,7 @@ trait WPRProtectFWRuleMiscFunc_V648 {
 		}
 		$resp = WPRHelper::safePregMatch((string) $pattern, (string) $subject);
 		if ($resp === false) {
-			throw new WPRProtectRuleError_V648(
+			throw new WPRProtectRuleError_V662(
 				$this->addExState('BVHelper::safePregMatch' . serialize($subject))
 			);
 		} elseif ($resp > 0) {
@@ -158,7 +174,7 @@ trait WPRProtectFWRuleMiscFunc_V648 {
 		}
 		$count = preg_match_all((string) $pattern, (string) $subject, $matches);
 		if ($count === false) {
-			throw new WPRProtectRuleError_V648(
+			throw new WPRProtectRuleError_V662(
 				$this->addExState("preg_match_all: " . serialize($subject))
 			);
 		}
@@ -184,7 +200,7 @@ trait WPRProtectFWRuleMiscFunc_V648 {
 		}
 		$count = preg_match_all((string) $pattern, (string) $subject, $matches);
 		if ($count === false) {
-			throw new WPRProtectRuleError_V648(
+			throw new WPRProtectRuleError_V662(
 				$this->addExState("preg_match_all: " . serialize($subject))
 			);
 		}
