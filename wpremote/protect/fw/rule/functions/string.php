@@ -2,8 +2,8 @@
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!trait_exists('WPRProtectFWRuleStringFunc_V662')) :
-trait WPRProtectFWRuleStringFunc_V662 {
+if (!trait_exists('WPRProtectFWRuleStringFunc_V665')) :
+trait WPRProtectFWRuleStringFunc_V665 {
 	private function _rf_isNumeric() {
 		$args = $this->processRuleFunctionParams(
 			'isNumeric',
@@ -238,7 +238,7 @@ trait WPRProtectFWRuleStringFunc_V662 {
 				}
 			}
 		} else {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("containsAnySubstring: Expects an array of substrings.")
 			);
 		}
@@ -273,7 +273,7 @@ trait WPRProtectFWRuleStringFunc_V662 {
 		$offset = isset($args[2]) ? $args[2] : 0;
 
 		if (!is_int($offset)) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("strPos: Offset should be an integer")
 			);
 		}
@@ -318,13 +318,13 @@ trait WPRProtectFWRuleStringFunc_V662 {
 		$limit = isset($args[2]) ? $args[2] : PHP_INT_MAX;
 
 		if (empty($separator)) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("splitString: Separator cannot be empty")
 			);
 		}
 
 		if (!is_int($limit)) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("splitString: Limit should be an integer")
 			);
 		}
@@ -343,7 +343,7 @@ trait WPRProtectFWRuleStringFunc_V662 {
 		$recursive = isset($args[1]) ? $args[1] : true;
 
 		if (!is_bool($recursive)) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("urlDecode: Recursive flag should be a boolean")
 			);
 		}
@@ -362,7 +362,7 @@ trait WPRProtectFWRuleStringFunc_V662 {
 		$recursive = isset($args[1]) ? $args[1] : true;
 
 		if (!is_bool($recursive)) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("rawUrlDecode: Recursive flag should be a boolean")
 			);
 		}
@@ -381,7 +381,7 @@ trait WPRProtectFWRuleStringFunc_V662 {
 		$recursive = isset($args[1]) ? $args[1] : true;
 
 		if (!is_bool($recursive)) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("htmlEntityDecode: Recursive flag should be a boolean")
 			);
 		}
@@ -400,7 +400,7 @@ trait WPRProtectFWRuleStringFunc_V662 {
 		$recursive = isset($args[1]) ? $args[1] : true;
 
 		if (!is_bool($recursive)) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("stripSlashes: Recursive flag should be a boolean")
 			);
 		}
@@ -409,7 +409,7 @@ trait WPRProtectFWRuleStringFunc_V662 {
 	}
 
 	private function normalizeStringValue($value, $operation, $recursive, $depth = 1) {
-		if ($depth > WPRProtectFWRuleEngine_V662::MAX_DEPTH_TO_ALLOWED_TYPE_FUNC) {
+		if ($depth > WPRProtectFWRuleEngine_V665::MAX_DEPTH_TO_ALLOWED_TYPE_FUNC) {
 			return null;
 		}
 
@@ -441,7 +441,7 @@ trait WPRProtectFWRuleStringFunc_V662 {
 			return stripslashes($value);
 		}
 
-		throw new WPRProtectRuleError_V662(
+		throw new WPRProtectRuleError_V665(
 			$this->addExState("normalizeStringValue: Invalid normalization operation")
 		);
 	}

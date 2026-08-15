@@ -5,7 +5,7 @@ Plugin URI: https://wpremote.com
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>.
 Author: WP Remote
 Author URI: https://wpremote.com
-Version: 6.62
+Version: 6.65
 Network: True
 License: GPLv2 or later
 License URI: [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
@@ -126,7 +126,9 @@ if (WPRHelper::getRawParam('REQUEST', 'bvplugname') == "wpremote") {
 	$rcvracc = WPRHelper::getRawParam('REQUEST', 'rcvracc');
 
 	if (isset($rcvracc)) {
-		$account = WPRRecover::find($bvsettings, $pubkey);
+		$bvctag = WPRHelper::getRawParam('REQUEST', 'bvctag');
+		$bvctag = isset($bvctag) ? WPRAccount::sanitizeKey($bvctag) : null;
+		$account = WPRRecover::find($bvsettings, $pubkey, $bvctag);
 	} else {
 		$account = WPRAccount::find($bvsettings, $pubkey);
 	}
@@ -153,7 +155,9 @@ if (WPRHelper::getRawParam('REQUEST', 'bvplugname') == "wpremote") {
 			}
 			$request->params = $params;
 			$callback_handler = new WPRCallbackHandler($bvdb, $bvsettings, $bvsiteinfo, $request, $account, $response);
-			if ($request->is_afterload) {
+			if ($request->is_aftershutdown) {
+				$callback_handler->deferExecutionUntilShutdown();
+			} else if ($request->is_afterload) {
 				add_action('wp_loaded', array($callback_handler, 'execute'));
 			} else if ($request->is_admin_ajax) {
 				add_action('wp_ajax_bvadm', array($callback_handler, 'bvAdmExecuteWithUser'));
@@ -170,14 +174,14 @@ if (WPRHelper::getRawParam('REQUEST', 'bvplugname') == "wpremote") {
 		if ($bvinfo->isProtectModuleEnabled()) {
 			require_once dirname( __FILE__ ) . '/protect/protect.php';
 			//For backward compatibility.
-			WPRProtect_V662::$settings = new WPRWPSettings();
-			WPRProtect_V662::$db = new WPRWPDb();
-			WPRProtect_V662::$info = new WPRInfo(WPRProtect_V662::$settings);
+			WPRProtect_V665::$settings = new WPRWPSettings();
+			WPRProtect_V665::$db = new WPRWPDb();
+			WPRProtect_V665::$info = new WPRInfo(WPRProtect_V665::$settings);
 
-			add_action('wpr_clear_pt_config', array('WPRProtect_V662', 'uninstall'));
+			add_action('wpr_clear_pt_config', array('WPRProtect_V665', 'uninstall'));
 
 			if ($bvinfo->isActivePlugin()) {
-				WPRProtect_V662::init(WPRProtect_V662::MODE_WP);
+				WPRProtect_V665::init(WPRProtect_V665::MODE_WP);
 			}
 		}
 
@@ -190,7 +194,7 @@ if (WPRHelper::getRawParam('REQUEST', 'bvplugname') == "wpremote") {
 
 	}
 	$bv_site_settings = $bvsettings->getOption('bv_site_settings');
-	if (isset($bv_site_settings)) {
+	if (is_array($bv_site_settings)) {
 		if (isset($bv_site_settings['wp_auto_updates'])) {
 			$wp_auto_updates = $bv_site_settings['wp_auto_updates'];
 			if (array_key_exists('block_auto_update_core', $wp_auto_updates)) {
@@ -208,6 +212,26 @@ if (WPRHelper::getRawParam('REQUEST', 'bvplugname') == "wpremote") {
 				add_filter('auto_update_translation', '__return_false' );
 			}
 		}
+	
+		if (isset($bv_site_settings['security_hardening'])) {
+			$bv_security_hardening = $bv_site_settings['security_hardening'];
+			if (is_array($bv_security_hardening) &&
+					isset($bv_security_hardening['version']) &&
+					$bv_security_hardening['version'] === 1) {
+				if (isset($bv_security_hardening['disable_file_editor']) &&
+						$bv_security_hardening['disable_file_editor'] === true &&
+						!defined('DISALLOW_FILE_EDIT')) {
+					define('DISALLOW_FILE_EDIT', true);
+				}
+	
+				if (isset($bv_security_hardening['block_file_modifications']) &&
+						$bv_security_hardening['block_file_modifications'] === true &&
+						!defined('DISALLOW_FILE_MODS')) {
+					define('DISALLOW_FILE_MODS', true);
+				}
+			}
+		}
+
 	}
 
 	if (is_admin()) {

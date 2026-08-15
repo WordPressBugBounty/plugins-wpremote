@@ -1,12 +1,12 @@
 <?php
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtectFW_V662')) :
+if (!class_exists('WPRProtectFW_V665')) :
 require_once dirname( __FILE__ ) . '/fw/rule/errors.php';
 require_once dirname( __FILE__ ) . '/fw/rule/engine.php';
 require_once dirname( __FILE__ ) . '/fw/rule.php';
 
-class WPRProtectFW_V662 {
+class WPRProtectFW_V665 {
 	private $brand_name;
 	private $protect_mode;
 	private $request;
@@ -23,23 +23,23 @@ class WPRProtectFW_V662 {
 	private $is_ip_whitelisted = null;
 	private $has_valid_bypass_cookie;
 
-	private $mode = WPRProtectFW_V662::MODE_DISABLED;
-	private $ip_cookie_mode = WPRProtectFW_V662::IP_COOKIE_MODE_DISABLED;
-	private $admin_cookie_mode = WPRProtectFW_V662::ADMIN_COOKIE_MODE_DISABLED;
-	private $bypass_level = WPRProtectFW_V662::WP_USER_ROLE_LEVEL_CONTRIBUTOR;
-	private $wpf_rule_init_mode = WPRProtectFW_V662::WPF_RULE_INIT_MODE_WP;
+	private $mode = WPRProtectFW_V665::MODE_DISABLED;
+	private $ip_cookie_mode = WPRProtectFW_V665::IP_COOKIE_MODE_DISABLED;
+	private $admin_cookie_mode = WPRProtectFW_V665::ADMIN_COOKIE_MODE_DISABLED;
+	private $bypass_level = WPRProtectFW_V665::WP_USER_ROLE_LEVEL_CONTRIBUTOR;
+	private $wpf_rule_init_mode = WPRProtectFW_V665::WPF_RULE_INIT_MODE_WP;
 	private $custom_roles = array();
 	private $cookie_key = "";
 	private $cookie_path = "";
 	private $cookie_domain = "";
 	private $cookie_validity = 2592000;
 	private $can_set_cache_prevention_cookie = false;
-	private $rules_mode = WPRProtectFW_V662::RULES_MODE_DISABLED;
+	private $rules_mode = WPRProtectFW_V665::RULES_MODE_DISABLED;
 	private $is_geo_blocking = false;
 	private $is_wp_user_cookie_enabled = false;
 	private $log_config = array();
-	private $request_profiling_mode = WPRProtectFW_V662::REQ_PROFILING_MODE_DISABLED;
-	private $logging_mode = WPRProtectFW_V662::LOGGING_MODE_VISITOR;
+	private $request_profiling_mode = WPRProtectFW_V665::REQ_PROFILING_MODE_DISABLED;
+	private $logging_mode = WPRProtectFW_V665::LOGGING_MODE_VISITOR;
 	private $skip_log_config = array();
 	private $skip_log_cookies = array();
 	private $skip_log_headers = array();
@@ -54,7 +54,7 @@ class WPRProtectFW_V662 {
 	private $matched_rules = array();
 	private $break_rule_matching = false;
 	private $can_log_raw_body = false;
-	private $log_slice_size = WPRProtectFW_V662::LOG_SLICE_SIZE;
+	private $log_slice_size = WPRProtectFW_V665::LOG_SLICE_SIZE;
 
 	private static $instance = null;
 
@@ -100,16 +100,16 @@ class WPRProtectFW_V662 {
 	const LOGGING_MODE_DISABLED = 3;
 
 	const DEFAULT_WP_USER_ROLE_LEVELS = array(
-		'administrator' => WPRProtectFW_V662::WP_USER_ROLE_LEVEL_ADMIN,
-		'editor'        => WPRProtectFW_V662::WP_USER_ROLE_LEVEL_EDITOR,
-		'author'        => WPRProtectFW_V662::WP_USER_ROLE_LEVEL_AUTHOR,
-		'contributor'   => WPRProtectFW_V662::WP_USER_ROLE_LEVEL_CONTRIBUTOR,
-		'subscriber'    => WPRProtectFW_V662::WP_USER_ROLE_LEVEL_SUBSCRIBER
+		'administrator' => WPRProtectFW_V665::WP_USER_ROLE_LEVEL_ADMIN,
+		'editor'        => WPRProtectFW_V665::WP_USER_ROLE_LEVEL_EDITOR,
+		'author'        => WPRProtectFW_V665::WP_USER_ROLE_LEVEL_AUTHOR,
+		'contributor'   => WPRProtectFW_V665::WP_USER_ROLE_LEVEL_CONTRIBUTOR,
+		'subscriber'    => WPRProtectFW_V665::WP_USER_ROLE_LEVEL_SUBSCRIBER
 	);
 
 	const EXTRA_WP_USER_ROLE_LEVELS = array(
-		'custom'        => WPRProtectFW_V662::WP_USER_ROLE_LEVEL_CUSTOM,
-		'unknown'       => WPRProtectFW_V662::WP_USER_ROLE_LEVEL_UNKNOWN
+		'custom'        => WPRProtectFW_V665::WP_USER_ROLE_LEVEL_CUSTOM,
+		'unknown'       => WPRProtectFW_V665::WP_USER_ROLE_LEVEL_UNKNOWN
 	);
 
 	const TABLE_NAME                = "fw_requests";
@@ -248,11 +248,11 @@ class WPRProtectFW_V662 {
 
 		if ($this->isPrependMode()) {
 			$log_file = MCDATAPATH . MCCONFKEY . '-mc.log';
-			$this->ipstore = new WPRProtectIpstore_V662(WPRProtectIpstore_V662::STORAGE_TYPE_FS);
-			$this->logger = new WPRProtectLogger_V662($log_file, WPRProtectLogger_V662::TYPE_FS);
+			$this->ipstore = new WPRProtectIpstore_V665(WPRProtectIpstore_V665::STORAGE_TYPE_FS);
+			$this->logger = new WPRProtectLogger_V665($log_file, WPRProtectLogger_V665::TYPE_FS);
 		} else {
-			$this->ipstore = new WPRProtectIpstore_V662(WPRProtectIpstore_V662::STORAGE_TYPE_DB);
-			$this->logger = new WPRProtectLogger_V662(WPRProtectFW_V662::TABLE_NAME, WPRProtectLogger_V662::TYPE_DB);
+			$this->ipstore = new WPRProtectIpstore_V665(WPRProtectIpstore_V665::STORAGE_TYPE_DB);
+			$this->logger = new WPRProtectLogger_V665(WPRProtectFW_V665::TABLE_NAME, WPRProtectLogger_V665::TYPE_DB);
 		}
 
 		if ($this->is_wp_user_cookie_enabled) {
@@ -265,10 +265,10 @@ class WPRProtectFW_V662 {
 	public static function getInstance($protect_mode, $request, $config, $brand_name) {
 		if (!isset(self::$instance)) {
 			self::$instance = new self($protect_mode, $request, $config, $brand_name);
-		} elseif (self::$instance->protect_mode != $protect_mode && $protect_mode == WPRProtect_V662::MODE_WP) {
+		} elseif (self::$instance->protect_mode != $protect_mode && $protect_mode == WPRProtect_V665::MODE_WP) {
 			self::$instance->protect_mode = $protect_mode;
 			self::$instance->brand_name = $brand_name;
-			self::$instance->ipstore = new WPRProtectIpstore_V662(WPRProtectIpstore_V662::STORAGE_TYPE_DB);
+			self::$instance->ipstore = new WPRProtectIpstore_V665(WPRProtectIpstore_V665::STORAGE_TYPE_DB);
 			self::$instance->initRules();
 		}
 
@@ -276,7 +276,7 @@ class WPRProtectFW_V662 {
 	}
 
 	public static function uninstall() {
-		WPRProtect_V662::$db->dropBVTable(WPRProtectFW_V662::TABLE_NAME);
+		WPRProtect_V665::$db->dropBVTable(WPRProtectFW_V665::TABLE_NAME);
 	}
 
 	public function init() {
@@ -296,40 +296,40 @@ class WPRProtectFW_V662 {
 	}
 
 	private function isPrependMode() {
-		return ($this->protect_mode === WPRProtect_V662::MODE_PREPEND);
+		return ($this->protect_mode === WPRProtect_V665::MODE_PREPEND);
 	}
 
 	private function isWPMode() {
-		return ($this->protect_mode === WPRProtect_V662::MODE_WP);
+		return ($this->protect_mode === WPRProtect_V665::MODE_WP);
 	}
 
 	private function isModeDisabled() {
-		return ($this->mode === WPRProtectFW_V662::MODE_DISABLED);
+		return ($this->mode === WPRProtectFW_V665::MODE_DISABLED);
 	}
 
 	private function isModeProtect() {
-		return ($this->mode === WPRProtectFW_V662::MODE_PROTECT);
+		return ($this->mode === WPRProtectFW_V665::MODE_PROTECT);
 	}
 
 	private function isAdminCookieEnabled() {
-		return ($this->admin_cookie_mode === WPRProtectFW_V662::ADMIN_COOKIE_MODE_ENABLED);
+		return ($this->admin_cookie_mode === WPRProtectFW_V665::ADMIN_COOKIE_MODE_ENABLED);
 	}
 
 	private function isIPCookieEnabled() {
-		return ($this->ip_cookie_mode === WPRProtectFW_V662::IP_COOKIE_MODE_ENABLED);
+		return ($this->ip_cookie_mode === WPRProtectFW_V665::IP_COOKIE_MODE_ENABLED);
 	}
 
 	private function isRequestProfilingDisabled() {
-		return ($this->request_profiling_mode === WPRProtectFW_V662::REQ_PROFILING_MODE_DISABLED);
+		return ($this->request_profiling_mode === WPRProtectFW_V665::REQ_PROFILING_MODE_DISABLED);
 	}
 
 	private function isRequestProfilingModeDebug() {
-		return ($this->request_profiling_mode === WPRProtectFW_V662::REQ_PROFILING_MODE_DEBUG);
+		return ($this->request_profiling_mode === WPRProtectFW_V665::REQ_PROFILING_MODE_DEBUG);
 	}
 
 	private function isRequestHasValidBypassCookie() {
 		if (!isset($this->has_valid_bypass_cookie)) {
-			$cookie = (string) $this->request->getCookies(WPRProtectFW_V662::BYPASS_COOKIE_NAME);
+			$cookie = (string) $this->request->getCookies(WPRProtectFW_V665::BYPASS_COOKIE_NAME);
 			$new_cookie = $this->generateBypassCookie();
 			$is_valid = ($this->isAdminCookieEnabled() && $new_cookie && ($cookie === $new_cookie));
 			$this->has_valid_bypass_cookie = $is_valid;
@@ -339,15 +339,15 @@ class WPRProtectFW_V662 {
 	}
 
 	private function isRulesModeProtect() {
-		return ($this->rules_mode === WPRProtectFW_V662::RULES_MODE_PROTECT);
+		return ($this->rules_mode === WPRProtectFW_V665::RULES_MODE_PROTECT);
 	}
 
 	public function isLoggingModeComplete() {
-		return ($this->logging_mode === WPRProtectFW_V662::LOGGING_MODE_COMPLETE);
+		return ($this->logging_mode === WPRProtectFW_V665::LOGGING_MODE_COMPLETE);
 	}
 
 	public function isLoggingModeVisitor() {
-		return ($this->logging_mode === WPRProtectFW_V662::LOGGING_MODE_VISITOR);
+		return ($this->logging_mode === WPRProtectFW_V665::LOGGING_MODE_VISITOR);
 	}
 
 	public function isGeoBlockingEnabled() {
@@ -355,11 +355,11 @@ class WPRProtectFW_V662 {
 	}
 
 	private function isWPFRuleInitModePrepend() {
-		return ($this->wpf_rule_init_mode === WPRProtectFW_V662::WPF_RULE_INIT_MODE_PREPEND);
+		return ($this->wpf_rule_init_mode === WPRProtectFW_V665::WPF_RULE_INIT_MODE_PREPEND);
 	}
 
 	private function isWPFRuleInitModeWP() {
-		return ($this->wpf_rule_init_mode === WPRProtectFW_V662::WPF_RULE_INIT_MODE_WP);
+		return ($this->wpf_rule_init_mode === WPRProtectFW_V665::WPF_RULE_INIT_MODE_WP);
 	}
 
 	private function canInitWPFRules() {
@@ -388,16 +388,16 @@ class WPRProtectFW_V662 {
 			$current_wp_user = $this->getCurrentWPUser();
 
 			if (!$current_wp_user->isIdentical($this->request->wp_user)) {
-				$serialized_wp_user = WPRProtectWPUser_V662::_serialize($current_wp_user);
+				$serialized_wp_user = WPRProtectWPUser_V665::_serialize($current_wp_user);
 				$cookie_val = $serialized_wp_user . '_' .
-					WPRProtectUtils_V662::signMessage($serialized_wp_user, $this->cookie_key);
+					WPRProtectUtils_V665::signMessage($serialized_wp_user, $this->cookie_key);
 				$cookie_val = base64_encode($cookie_val);
 
-				$this->setCookie(WPRProtectWPUser_V662::COOKIE_NAME, $cookie_val);
+				$this->setCookie(WPRProtectWPUser_V665::COOKIE_NAME, $cookie_val);
 			}
 		} elseif ($this->request->wp_user->isLoggedIn()) {
-			$this->request->wp_user = WPRProtectWPUser_V662::defaultUser();
-			$this->unsetCookie(WPRProtectWPUser_V662::COOKIE_NAME);
+			$this->request->wp_user = WPRProtectWPUser_V665::defaultUser();
+			$this->unsetCookie(WPRProtectWPUser_V665::COOKIE_NAME);
 		}
 	}
 
@@ -414,7 +414,7 @@ class WPRProtectFW_V662 {
 			$capabilities = $this->getCurrentWPUserCapabilities();
 		}
 
-		return (new WPRProtectWPUser_V662($id, $role_level, $capabilities, $time));
+		return (new WPRProtectWPUser_V665($id, $role_level, $capabilities, $time));
 	}
 
 	private function getCurrentWPUserCapabilities() {
@@ -433,9 +433,9 @@ class WPRProtectFW_V662 {
 	}
 
 	private function loadWPUser() {
-		$this->request->wp_user = WPRProtectWPUser_V662::defaultUser();
+		$this->request->wp_user = WPRProtectWPUser_V665::defaultUser();
 
-		$cookie_val = $this->request->getCookies(WPRProtectWPUser_V662::COOKIE_NAME);
+		$cookie_val = $this->request->getCookies(WPRProtectWPUser_V665::COOKIE_NAME);
 		if (!is_string($cookie_val)) {
 			return;
 		}
@@ -451,8 +451,8 @@ class WPRProtectFW_V662 {
 		}
 		list($serialized_user, $signature) = $cookie_val_array;
 
-		if (WPRProtectUtils_V662::verifyMessage($serialized_user, $signature, $this->cookie_key) === true) {
-			$wp_user = WPRProtectWPUser_V662::_unserialize($serialized_user);
+		if (WPRProtectUtils_V665::verifyMessage($serialized_user, $signature, $this->cookie_key) === true) {
+			$wp_user = WPRProtectWPUser_V665::_unserialize($serialized_user);
 
 			if (!isset($wp_user) || $wp_user->time !== (int) floor(time() / $this->cookie_validity)) {
 				return;
@@ -467,8 +467,8 @@ class WPRProtectFW_V662 {
 				}
 			}
 
-			$role_by_level = array_flip(array_merge(WPRProtectFW_V662::DEFAULT_WP_USER_ROLE_LEVELS,
-					WPRProtectFW_V662::EXTRA_WP_USER_ROLE_LEVELS));
+			$role_by_level = array_flip(array_merge(WPRProtectFW_V665::DEFAULT_WP_USER_ROLE_LEVELS,
+					WPRProtectFW_V665::EXTRA_WP_USER_ROLE_LEVELS));
 			$this->request->wp_user->role = $role_by_level[$this->request->wp_user->role_level];
 		}
 	}
@@ -492,9 +492,9 @@ class WPRProtectFW_V662 {
 
 		if ($this->isPrependMode()) {
 			$rules_file = MCDATAPATH . MCCONFKEY . '-' . 'mc_rules.json';
-			$rule_arrays = WPRProtectUtils_V662::parseFile($rules_file);
+			$rule_arrays = WPRProtectUtils_V665::parseFile($rules_file);
 		} else {
-			$rule_arrays = WPRProtect_V662::$settings->getOption('bvruleset');
+			$rule_arrays = WPRProtect_V665::$settings->getOption('bvruleset');
 			if(!is_array($rule_arrays)) {
 				$rule_arrays = array();
 			}
@@ -506,7 +506,7 @@ class WPRProtectFW_V662 {
 		}
 
 		foreach($rule_arrays as $rule_array) {
-			$rule = WPRProtectFWRule_V662::init($rule_array);
+			$rule = WPRProtectFWRule_V665::init($rule_array);
 
 			if ($rule) {
 				if (!$this->is_rule_initialized && $rule->isExeOnBoot()) {
@@ -531,103 +531,103 @@ class WPRProtectFW_V662 {
 
 	private function initWPFRule($rule) {
 		switch ($rule->execute_on) {
-		case WPRProtectFWRule_V662::EXE_ON_PRE_UPDATE_OPTION:
+		case WPRProtectFWRule_V665::EXE_ON_PRE_UPDATE_OPTION:
 			$this->addWPHook($rule, 'pre_update_option', 'handleRequestOnPreUpdateOption', 3);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_PRE_DELETE_POST:
+		case WPRProtectFWRule_V665::EXE_ON_PRE_DELETE_POST:
 			$this->addWPHook($rule, 'pre_delete_post', 'handleRequestOnPreDeletePost', 3);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_WP_INSERT_POST_EMPTY_CONTENT:
+		case WPRProtectFWRule_V665::EXE_ON_WP_INSERT_POST_EMPTY_CONTENT:
 			$this->addWPHook($rule, 'wp_insert_post_empty_content',
 				'handleRequestOnWPInsertPostEmptyContent', 2);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_INSERT_USER_META:
+		case WPRProtectFWRule_V665::EXE_ON_INSERT_USER_META:
 			$this->addWPHook($rule, 'insert_user_meta', 'handleRequestOnInsertUserMeta', 4);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_DELETE_OPTION:
+		case WPRProtectFWRule_V665::EXE_ON_DELETE_OPTION:
 			$this->addWPHook($rule, 'delete_option', 'handleRequestOnDeleteOption', 1, 'action');
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_DELETE_USER:
+		case WPRProtectFWRule_V665::EXE_ON_DELETE_USER:
 			$this->addWPHook($rule, 'delete_user', 'handleRequestOnDeleteUser', 3, 'action');
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_PASSWORD_RESET:
+		case WPRProtectFWRule_V665::EXE_ON_PASSWORD_RESET:
 			$this->addWPHook($rule, 'password_reset', 'handleRequestOnPasswordReset', 2, 'action');
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_SEND_AUTH_COOKIES:
+		case WPRProtectFWRule_V665::EXE_ON_SEND_AUTH_COOKIES:
 			$this->addWPHook($rule, 'send_auth_cookies', 'handleRequestOnSendAuthCookies', 6);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_SET_AUTH_COOKIE:
+		case WPRProtectFWRule_V665::EXE_ON_SET_AUTH_COOKIE:
 			$this->addWPHook($rule, 'set_auth_cookie', 'handleRequestOnSetAuthCookie', 6, 'action');
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_INIT:
+		case WPRProtectFWRule_V665::EXE_ON_INIT:
 			$this->addWPHook($rule, 'init', 'handleRequestOnInit', 0, 'action');
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_USER_REGISTER:
+		case WPRProtectFWRule_V665::EXE_ON_USER_REGISTER:
 			$this->addWPHook($rule, 'user_register', 'handleRequestOnUserRegister', 2, 'action');
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_ADD_USER_META:
+		case WPRProtectFWRule_V665::EXE_ON_ADD_USER_META:
 			$this->addWPHook($rule, 'add_user_meta', 'handleRequestOnAddUserMeta', 3, 'action');
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_UPDATE_USER_METADATA:
+		case WPRProtectFWRule_V665::EXE_ON_UPDATE_USER_METADATA:
 			$this->addWPHook($rule, 'update_user_metadata', 'handleRequestOnUpdateUserMetadata', 5);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_UPDATE_USER_META:
+		case WPRProtectFWRule_V665::EXE_ON_UPDATE_USER_META:
 			$this->addWPHook($rule, 'update_user_meta', 'handleRequestOnUpdateUserMeta', 4, 'action');
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_ADD_OPTION:
+		case WPRProtectFWRule_V665::EXE_ON_ADD_OPTION:
 			$this->addWPHook($rule, 'add_option', 'handleRequestOnAddOption', 2, 'action');
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_WP_PRE_INSERT_USER_DATA:
+		case WPRProtectFWRule_V665::EXE_ON_WP_PRE_INSERT_USER_DATA:
 			$this->addWPHook($rule, 'wp_pre_insert_user_data', 'handleRequestOnWPPreInsertUserData', 4);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_REST_REQUEST_BEFORE_CALLBACKS:
+		case WPRProtectFWRule_V665::EXE_ON_REST_REQUEST_BEFORE_CALLBACKS:
 			$this->addWPHook($rule, 'rest_request_before_callbacks',
 				'handleRequestOnRestRequestBeforeCallbacks', 3);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_ADMIN_INIT:
+		case WPRProtectFWRule_V665::EXE_ON_ADMIN_INIT:
 			$this->addWPHook($rule, 'admin_init', 'handleRequestOnAdminInit', 0, 'action');
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_WP_HANDLE_UPLOAD_PREFILTER:
+		case WPRProtectFWRule_V665::EXE_ON_WP_HANDLE_UPLOAD_PREFILTER:
 			$this->addWPHook($rule, 'wp_handle_upload_prefilter',
 				'handleRequestOnWPHandleUploadPrefilter', 1);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_TEMPLATE_REDIRECT:
+		case WPRProtectFWRule_V665::EXE_ON_TEMPLATE_REDIRECT:
 			$this->addWPHook($rule, 'template_redirect', 'handleRequestOnTemplateRedirect', 0, 'action');
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_WP_LOADED:
+		case WPRProtectFWRule_V665::EXE_ON_WP_LOADED:
 			$this->addWPHook($rule, 'wp_loaded', 'handleRequestOnWPLoaded', 0, 'action');
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_ADD_POST_METADATA:
+		case WPRProtectFWRule_V665::EXE_ON_ADD_POST_METADATA:
 			$this->addWPHook($rule, 'add_post_metadata', 'handleRequestOnAddPostMetadata', 5);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_UPDATE_POST_METADATA:
+		case WPRProtectFWRule_V665::EXE_ON_UPDATE_POST_METADATA:
 			$this->addWPHook($rule, 'update_post_metadata', 'handleRequestOnUpdatePostMetadata', 5);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_DELETE_POST_METADATA:
+		case WPRProtectFWRule_V665::EXE_ON_DELETE_POST_METADATA:
 			$this->addWPHook($rule, 'delete_post_metadata', 'handleRequestOnDeletePostMetadata', 5);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_ADD_TERM_METADATA:
+		case WPRProtectFWRule_V665::EXE_ON_ADD_TERM_METADATA:
 			$this->addWPHook($rule, 'add_term_metadata', 'handleRequestOnAddTermMetadata', 5);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_UPDATE_TERM_METADATA:
+		case WPRProtectFWRule_V665::EXE_ON_UPDATE_TERM_METADATA:
 			$this->addWPHook($rule, 'update_term_metadata', 'handleRequestOnUpdateTermMetadata', 5);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_DELETE_TERM_METADATA:
+		case WPRProtectFWRule_V665::EXE_ON_DELETE_TERM_METADATA:
 			$this->addWPHook($rule, 'delete_term_metadata', 'handleRequestOnDeleteTermMetadata', 5);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_ADD_COMMENT_METADATA:
+		case WPRProtectFWRule_V665::EXE_ON_ADD_COMMENT_METADATA:
 			$this->addWPHook($rule, 'add_comment_metadata', 'handleRequestOnAddCommentMetadata', 5);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_UPDATE_COMMENT_METADATA:
+		case WPRProtectFWRule_V665::EXE_ON_UPDATE_COMMENT_METADATA:
 			$this->addWPHook($rule, 'update_comment_metadata', 'handleRequestOnUpdateCommentMetadata', 5);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_DELETE_COMMENT_METADATA:
+		case WPRProtectFWRule_V665::EXE_ON_DELETE_COMMENT_METADATA:
 			$this->addWPHook($rule, 'delete_comment_metadata', 'handleRequestOnDeleteCommentMetadata', 5);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_ADD_USER_METADATA:
+		case WPRProtectFWRule_V665::EXE_ON_ADD_USER_METADATA:
 			$this->addWPHook($rule, 'add_user_metadata', 'handleRequestOnAddUserMetadata', 5);
 			break;
-		case WPRProtectFWRule_V662::EXE_ON_DELETE_USER_METADATA:
+		case WPRProtectFWRule_V665::EXE_ON_DELETE_USER_METADATA:
 			$this->addWPHook($rule, 'delete_user_metadata', 'handleRequestOnDeleteUserMetadata', 5);
 			break;
 		}
@@ -645,7 +645,7 @@ class WPRProtectFW_V662 {
 					add_filter($hook_name, $callback, -9999999, $accepted_args);
 				}
 			} else {
-				WPRProtectUtils_V662::preInitWPHook($hook_name, $callback, -9999999, $accepted_args);
+				WPRProtectUtils_V665::preInitWPHook($hook_name, $callback, -9999999, $accepted_args);
 			}
 		}
 
@@ -1203,12 +1203,12 @@ class WPRProtectFW_V662 {
 
 	private function setIPCookie() {
 		if (!$this->is_ip_cookie_set && $this->isIPCookieEnabled() &&
-				!$this->request->getCookies(WPRProtectFW_V662::IP_COOKIE_NAME)) {
+				!$this->request->getCookies(WPRProtectFW_V665::IP_COOKIE_NAME)) {
 
 			$time = floor(time() / 86400);
 			$cookie = hash('sha256', $this->request->ip . $time . $this->cookie_key);
 			if ($cookie) {
-				$this->setCookie(WPRProtectFW_V662::IP_COOKIE_NAME, $cookie, time() + 86400);
+				$this->setCookie(WPRProtectFW_V665::IP_COOKIE_NAME, $cookie, time() + 86400);
 			}
 		}
 	}
@@ -1216,16 +1216,16 @@ class WPRProtectFW_V662 {
 	private function getCurrentWPUserRoleLevel() {
 		if (function_exists('current_user_can')) {
 			if (function_exists('is_super_admin') &&  is_super_admin()) {
-				return WPRProtectFW_V662::WP_USER_ROLE_LEVEL_ADMIN;
+				return WPRProtectFW_V665::WP_USER_ROLE_LEVEL_ADMIN;
 			}
 
 			foreach ($this->custom_roles as $role) {
 				if (current_user_can($role)) {
-					return WPRProtectFW_V662::WP_USER_ROLE_LEVEL_CUSTOM;
+					return WPRProtectFW_V665::WP_USER_ROLE_LEVEL_CUSTOM;
 				}
 			}
 
-			foreach (WPRProtectFW_V662::DEFAULT_WP_USER_ROLE_LEVELS as $role => $level) {
+			foreach (WPRProtectFW_V665::DEFAULT_WP_USER_ROLE_LEVELS as $role => $level) {
 				if (current_user_can($role)) {
 					return $level;
 				}
@@ -1333,9 +1333,9 @@ class WPRProtectFW_V662 {
 	private function getBVCookies() {
 		$cookies = array();
 
-		if ($this->request->getCookies(WPRProtectFW_V662::IP_COOKIE_NAME) !== NULL) {
-			$cookie_val = (string) $this->request->getCookies(WPRProtectFW_V662::IP_COOKIE_NAME);
-			$cookies[WPRProtectFW_V662::IP_COOKIE_NAME] = $cookie_val;
+		if ($this->request->getCookies(WPRProtectFW_V665::IP_COOKIE_NAME) !== NULL) {
+			$cookie_val = (string) $this->request->getCookies(WPRProtectFW_V665::IP_COOKIE_NAME);
+			$cookies[WPRProtectFW_V665::IP_COOKIE_NAME] = $cookie_val;
 		}
 
 		return $cookies;
@@ -1499,7 +1499,7 @@ class WPRProtectFW_V662 {
 	}
 
 	private function getUserBy($attribute, $value) {
-		if (isset($value) && function_exists('get_user_by') && WPRProtectUtils_V662::havePluginsLoaded()) {
+		if (isset($value) && function_exists('get_user_by') && WPRProtectUtils_V665::havePluginsLoaded()) {
 			return get_user_by($attribute, $value);
 		}
 	}
@@ -1603,7 +1603,7 @@ class WPRProtectFW_V662 {
 						$profiled_data[$key]["file"] = true;
 					}
 
-					if ($this->matchCount(WPRProtectFWRule_V662::SQLIREGEX, $value) > 2) {
+					if ($this->matchCount(WPRProtectFWRule_V665::SQLIREGEX, $value) > 2) {
 						$profiled_data[$key]["sql"] = true;
 					}
 
@@ -1692,13 +1692,13 @@ class WPRProtectFW_V662 {
 
 	private function canRequestBypassFirewall() {
 		if ($this->isRequestIPWhitelisted() || $this->isRequestHasValidBypassCookie()) {
-			$this->request->category = WPRProtectRequest_V662::CATEGORY_WHITELISTED;
-			$this->request->status = WPRProtectRequest_V662::STATUS_BYPASSED;
+			$this->request->category = WPRProtectRequest_V665::CATEGORY_WHITELISTED;
+			$this->request->status = WPRProtectRequest_V665::STATUS_BYPASSED;
 
 			return true;
-		} elseif (WPRProtectUtils_V662::isPrivateIP($this->request->ip)) {
-			$this->request->category = WPRProtectRequest_V662::CATEGORY_PRIVATEIP;
-			$this->request->status = WPRProtectRequest_V662::STATUS_BYPASSED;
+		} elseif (WPRProtectUtils_V665::isPrivateIP($this->request->ip)) {
+			$this->request->category = WPRProtectRequest_V665::CATEGORY_PRIVATEIP;
+			$this->request->status = WPRProtectRequest_V665::STATUS_BYPASSED;
 
 			return true;
 		}
@@ -1722,7 +1722,7 @@ class WPRProtectFW_V662 {
 	}
 
 	private function handleRequestOnRuleMatch($rules, $engine_vars = array(), $log_data = array()) {
-		$normalized_engine_vars = WPRProtectFWRuleEngine_V662::normalizeVariables($engine_vars);
+		$normalized_engine_vars = WPRProtectFWRuleEngine_V665::normalizeVariables($engine_vars);
 
 		foreach ($rules as $rule) {
 			if ($this->break_rule_matching) {
@@ -1732,10 +1732,10 @@ class WPRProtectFW_V662 {
 			$_engine_vars = $normalized_engine_vars;
 			if (array_key_exists('variables', $rule->opts)) {
 				$_engine_vars = array_merge($_engine_vars,
-					WPRProtectFWRuleEngine_V662::normalizeVariables($rule->opts['variables']));
+					WPRProtectFWRuleEngine_V665::normalizeVariables($rule->opts['variables']));
 			}
 
-			$rule_engine = new WPRProtectFWRuleEngine_V662($this->request, $_engine_vars);
+			$rule_engine = new WPRProtectFWRuleEngine_V665($this->request, $_engine_vars);
 
 			if ($rule_engine->evaluate($rule) && !$rule_engine->hasError()) {
 				if (!empty($log_data)) {
@@ -1748,11 +1748,11 @@ class WPRProtectFW_V662 {
 					switch ($action["type"]) {
 					case "ALLOW":
 						$this->break_rule_matching = true;
-						$this->request->category = WPRProtectRequest_V662::CATEGORY_RULE_ALLOWED;
+						$this->request->category = WPRProtectRequest_V665::CATEGORY_RULE_ALLOWED;
 						return;
 					case "BLOCK":
 						if ($this->isModeProtect()) {
-							$this->terminateRequest(WPRProtectRequest_V662::CATEGORY_RULE_BLOCKED);
+							$this->terminateRequest(WPRProtectRequest_V665::CATEGORY_RULE_BLOCKED);
 						}
 						return;
 					case "INSPECT":
@@ -1768,13 +1768,13 @@ class WPRProtectFW_V662 {
 
 	private function terminateRequest($category) {
 		$this->request->category = $category;
-		$this->request->status = WPRProtectRequest_V662::STATUS_BLOCKED;
+		$this->request->status = WPRProtectRequest_V665::STATUS_BLOCKED;
 		$this->request->setRespCode(403);
 
 		if ($this->can_set_cache_prevention_cookie &&
-			!$this->request->getCookies(WPRProtectFW_V662::PREVENT_CACHE_COOKIE_NAME)) {
+			!$this->request->getCookies(WPRProtectFW_V665::PREVENT_CACHE_COOKIE_NAME)) {
 			$value = "Prevent Caching Response.";
-			$this->setCookie(WPRProtectFW_V662::PREVENT_CACHE_COOKIE_NAME, $value, time() + 43200);
+			$this->setCookie(WPRProtectFW_V665::PREVENT_CACHE_COOKIE_NAME, $value, time() + 43200);
 		}
 
 		header("Cache-Control: no-cache, no-store, must-revalidate");
@@ -1802,7 +1802,7 @@ class WPRProtectFW_V662 {
 			if ($role_level >= $this->bypass_level) {
 				$cookie = $this->generateBypassCookie();
 				if ($cookie) {
-					$this->setCookie(WPRProtectFW_V662::BYPASS_COOKIE_NAME, $cookie);
+					$this->setCookie(WPRProtectFW_V665::BYPASS_COOKIE_NAME, $cookie);
 				}
 			}
 		}

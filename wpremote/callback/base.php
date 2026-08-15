@@ -15,12 +15,13 @@ class WPRCallbackBase {
 		"MISC_WING_VERSION" => '1.4',
 		"FS_WING_VERSION" => '1.4',
 		"INFO_WING_VERSION" => '2.7',
-		"WATCH_WING_VERSION" => '1.6',
+		"WATCH_WING_VERSION" => '1.7',
 		"FS_WRITE_WING_VERSION" => '1.2',
 		"FS_WRITE_WING_VERSION" => '1.2',
 		"IPSTORE_WING_VERSION" => '1.4',
 		"PROTECT_WING_VERSION" => '1.3',
 		"SECURITY_WING_VERSION" => '1.3',
+		"SECURITY_HARDENING_SETTINGS_VERSION" => '1.0',
 		);
 
 	public function objectToArray($obj) {

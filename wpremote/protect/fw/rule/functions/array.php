@@ -2,8 +2,8 @@
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!trait_exists('WPRProtectFWRuleArrayFunc_V662')) :
-trait WPRProtectFWRuleArrayFunc_V662 {
+if (!trait_exists('WPRProtectFWRuleArrayFunc_V665')) :
+trait WPRProtectFWRuleArrayFunc_V665 {
 	private function _rf_inArray() {
 		$args = $this->processRuleFunctionParams(
 			'inArray',
@@ -16,13 +16,13 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 		$strict = isset($args[2]) ? $args[2] : false;
 
 		if (!is_array($array)) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("inArray: 2nd param is not an array")
 			);
 		}
 
 		if (!is_bool($strict)) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("inArray: 3rd param is not a boolean")
 			);
 		}
@@ -53,7 +53,7 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 				}
 			}
 		} else {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("recInArray: Expects an array")
 			);
 		}
@@ -72,11 +72,11 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 		$array = $args[1];
 
 		if (!is_array($array)) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("arrayKeyExists: Array must be of type array")
 			);
 		} elseif (!is_string($key) && !is_int($key)) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("arrayKeyExists: Key must be of type string or int")
 			);
 		}
@@ -109,7 +109,7 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 		$recursive = isset($args[1]) ? $args[1] : false;
 
 		if (!is_bool($recursive)) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("getArrayKeys: 2nd param must be a boolean")
 			);
 		}
@@ -139,7 +139,7 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 		$recursive = isset($args[2]) ? $args[2] : false;
 
 		if (!is_bool($recursive)) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("hasAnyArrayKey: 3rd param must be a boolean")
 			);
 		}
@@ -147,7 +147,7 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 		$key_lookup = array();
 		foreach ($keys as $key) {
 			if (!is_int($key) && !is_string($key)) {
-				throw new WPRProtectRuleError_V662(
+				throw new WPRProtectRuleError_V665(
 					$this->addExState("hasAnyArrayKey: Key must be of type string or int")
 				);
 			}
@@ -188,7 +188,7 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 		$recursive = isset($args[2]) ? $args[2] : false;
 
 		if (!is_bool($recursive)) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("keyMatches: 3rd param must be a boolean")
 			);
 		}
@@ -223,7 +223,7 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 		}
 
 		if ($resp === false) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("keyMatches: Invalid regular expression")
 			);
 		}
@@ -232,7 +232,7 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 	private function keyMatchesPattern($pattern, $key) {
 		$resp = WPRHelper::safePregMatch($pattern, (string) $key);
 		if ($resp === false) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("keyMatches: Regex match failed")
 			);
 		}
@@ -241,7 +241,7 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 	}
 
 	private function keyMatchesRecursive($array, $pattern, &$traversed_keys, $depth = 1) {
-		if ($depth > WPRProtectFWRuleEngine_V662::MAX_DEPTH_TO_ALLOWED_TYPE_FUNC) {
+		if ($depth > WPRProtectFWRuleEngine_V665::MAX_DEPTH_TO_ALLOWED_TYPE_FUNC) {
 			return false;
 		}
 
@@ -261,7 +261,7 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 	}
 
 	private function getArrayKeysRecursive($array, &$keys, &$traversed_keys, $depth = 1) {
-		if ($depth > WPRProtectFWRuleEngine_V662::MAX_DEPTH_TO_ALLOWED_TYPE_FUNC) {
+		if ($depth > WPRProtectFWRuleEngine_V665::MAX_DEPTH_TO_ALLOWED_TYPE_FUNC) {
 			return;
 		}
 
@@ -276,7 +276,7 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 	}
 
 	private function hasAnyArrayKeyRecursive($array, $key_lookup, &$traversed_keys, $depth = 1) {
-		if ($depth > WPRProtectFWRuleEngine_V662::MAX_DEPTH_TO_ALLOWED_TYPE_FUNC) {
+		if ($depth > WPRProtectFWRuleEngine_V665::MAX_DEPTH_TO_ALLOWED_TYPE_FUNC) {
 			return false;
 		}
 
@@ -296,11 +296,11 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 	}
 
 	private function enforceArrayTraversalLimit($func_name, $traversed_keys) {
-		if ($traversed_keys > WPRProtectFWRuleEngine_V662::MAX_ARRAY_KEYS_TO_TRAVERSE) {
-			throw new WPRProtectRuleError_V662(
+		if ($traversed_keys > WPRProtectFWRuleEngine_V665::MAX_ARRAY_KEYS_TO_TRAVERSE) {
+			throw new WPRProtectRuleError_V665(
 				$this->addExState(
 					"TraversalLimitError: " . $func_name . " exceeded " .
-					WPRProtectFWRuleEngine_V662::MAX_ARRAY_KEYS_TO_TRAVERSE .
+					WPRProtectFWRuleEngine_V665::MAX_ARRAY_KEYS_TO_TRAVERSE .
 					" array keys"
 				)
 			);
@@ -320,13 +320,87 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 
 		foreach ($keys as $key) {
 			if (!is_int($key) && !is_string($key)) {
-				throw new WPRProtectRuleError_V662(
+				throw new WPRProtectRuleError_V665(
 					$this->addExState("digArray: Keys must be a valid array of string, or integer type")
 				);
 			}
 		}
 
 		return WPRHelper::digArray($array, $keys);
+	}
+
+	private function _rf_digArrayValues() {
+		$args = $this->processRuleFunctionParams(
+			'digArrayValues',
+			func_num_args(),
+			func_get_args(),
+			2,
+			['mixed', 'array']
+		);
+		$array = $args[0];
+		$keys = $args[1];
+
+		if (empty($keys)) {
+			throw new WPRProtectRuleError_V665(
+				$this->addExState("digArrayValues: Keys must not be empty")
+			);
+		}
+
+		if (count($keys) > WPRProtectFWRuleEngine_V665::MAX_DEPTH_TO_ALLOWED_TYPE_FUNC) {
+			throw new WPRProtectRuleError_V665(
+				$this->addExState(
+					"digArrayValues: Keys exceeded " .
+					WPRProtectFWRuleEngine_V665::MAX_DEPTH_TO_ALLOWED_TYPE_FUNC .
+					" levels of traversal"
+				)
+			);
+		}
+
+		foreach ($keys as $key) {
+			if (!is_int($key) && !is_string($key)) {
+				throw new WPRProtectRuleError_V665(
+					$this->addExState("digArrayValues: Keys must be a valid array of string, or integer type")
+				);
+			}
+		}
+
+		$nodes = array($array);
+		$traversed_keys = 0;
+
+		foreach ($keys as $key) {
+			$next_nodes = array();
+
+			foreach ($nodes as $node) {
+				if (!is_array($node)) {
+					continue;
+				}
+
+				if ($key === WPRProtectFWRuleEngine_V665::WILDCARD_KEY) {
+					foreach ($node as $value) {
+						$traversed_keys += 1;
+						$this->enforceArrayTraversalLimit('digArrayValues', $traversed_keys);
+						$next_nodes[] = $value;
+					}
+
+					continue;
+				}
+
+				$traversed_keys += 1;
+				$this->enforceArrayTraversalLimit('digArrayValues', $traversed_keys);
+
+				if (array_key_exists($key, $node)) {
+					$next_nodes[] = $node[$key];
+				}
+			}
+
+			if (empty($next_nodes)) {
+				return array();
+			}
+
+			$nodes = $next_nodes;
+		}
+
+		return $nodes;
 	}
 
 	private function _rf_filterArray() {
@@ -342,7 +416,7 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 
 		foreach ($keys as $key) {
 			if (!is_int($key) && !is_string($key)) {
-				throw new WPRProtectRuleError_V662(
+				throw new WPRProtectRuleError_V665(
 					$this->addExState("filterArray: Keys must be a valid array of string, or integer type")
 				);
 			}
@@ -363,7 +437,7 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 		$key = $args[1];
 
 		if (!is_string($key) && !is_int($key)) {
-			throw new WPRProtectRuleError_V662(
+			throw new WPRProtectRuleError_V665(
 				$this->addExState("getArrayVal: Key must be a valid string or integer")
 			);
 		}
@@ -444,7 +518,7 @@ trait WPRProtectFWRuleArrayFunc_V662 {
 
 		foreach ($array as $element) {
 			if (!is_scalar($element)) {
-				throw new WPRProtectRuleError_V662(
+				throw new WPRProtectRuleError_V665(
 					$this->addExState("arrayJoin: Array element must be of scalar type")
 				);
 			}
