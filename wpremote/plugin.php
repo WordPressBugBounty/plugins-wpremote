@@ -5,7 +5,7 @@ Plugin URI: https://wpremote.com
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>.
 Author: WP Remote
 Author URI: https://wpremote.com
-Version: 6.65
+Version: 6.69
 Network: True
 License: GPLv2 or later
 License URI: [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
@@ -174,14 +174,14 @@ if (WPRHelper::getRawParam('REQUEST', 'bvplugname') == "wpremote") {
 		if ($bvinfo->isProtectModuleEnabled()) {
 			require_once dirname( __FILE__ ) . '/protect/protect.php';
 			//For backward compatibility.
-			WPRProtect_V665::$settings = new WPRWPSettings();
-			WPRProtect_V665::$db = new WPRWPDb();
-			WPRProtect_V665::$info = new WPRInfo(WPRProtect_V665::$settings);
+			WPRProtect_V669::$settings = new WPRWPSettings();
+			WPRProtect_V669::$db = new WPRWPDb();
+			WPRProtect_V669::$info = new WPRInfo(WPRProtect_V669::$settings);
 
-			add_action('wpr_clear_pt_config', array('WPRProtect_V665', 'uninstall'));
+			add_action('wpr_clear_pt_config', array('WPRProtect_V669', 'uninstall'));
 
 			if ($bvinfo->isActivePlugin()) {
-				WPRProtect_V665::init(WPRProtect_V665::MODE_WP);
+				WPRProtect_V669::init(WPRProtect_V669::MODE_WP);
 			}
 		}
 

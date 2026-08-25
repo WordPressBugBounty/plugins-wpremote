@@ -53,7 +53,7 @@ if (!class_exists('WPRWPAction')) :
 		}
 
 		public function clear_wp_2fa_config() {
-			$meta_keys = array('wpr_2fa_enabled', 'wpr_2fa_secret');
+			$meta_keys = array('wpr_2fa_enabled', 'wpr_2fa_secret', 'wpr_2fa_method', 'wpr_2fa_email_challenge', 'wpr_2fa_email_rate', 'wpr_2fa_attempts');
 			foreach ($meta_keys as $meta_key) {
 					$this->settings->deleteMetaData('user', null, $meta_key, '', true);
 			}

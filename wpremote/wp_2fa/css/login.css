@@ -1,0 +1,65 @@
+.wp2fa-progress-bar {
+	display: none;
+	width: 100%;
+	margin-bottom: 10px;
+	background-color: #f3f3f3;
+}
+
+.wp2fa-progress-bar.show {
+	display: block;
+}
+
+.wp2fa-progress-bar .progress-bar-inner {
+	width: 0;
+	height: 5px;
+	background-color: #2271b1;
+	animation: wp2fa-loader 1s ease infinite;
+}
+
+#login #twofa-code-field {
+	margin: 0 0 16px;
+}
+
+#login #twofa-code-field label {
+	display: block;
+	position: relative;
+}
+
+#login #twofa-code-field .input {
+	margin-bottom: 0;
+}
+
+#login #twofa-help-icon {
+	color: #2271b1;
+	font-size: 20px;
+	cursor: pointer;
+}
+
+#login .twofa-help-link {
+	text-decoration: none;
+}
+
+#login #twofa-resend {
+	display: none;
+	margin-top: 8px;
+}
+
+#login #twofa-destination {
+	display: block;
+	margin-top: 6px;
+	color: #50575e;
+	font-size: 13px;
+}
+
+#login #twofa-resend-status {
+	display: none;
+	margin-top: 6px;
+	color: #50575e;
+	font-size: 13px;
+}
+
+@keyframes wp2fa-loader {
+	100% {
+		width: 100%;
+	}
+}

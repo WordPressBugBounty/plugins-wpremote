@@ -1,21 +1,21 @@
 <?php
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtectLogger_V665')) :
+if (!class_exists('WPRProtectLogger_V669')) :
 require_once dirname( __FILE__ ) . '/logger/fs.php';
 require_once dirname( __FILE__ ) . '/logger/db.php';
 
-class WPRProtectLogger_V665 {
+class WPRProtectLogger_V669 {
 	private $log_destination;
 
 	const TYPE_FS = 0;
 	const TYPE_DB = 1;
 
-	function __construct($name, $type = WPRProtectLogger_V665::TYPE_DB) {
-		if ($type == WPRProtectLogger_V665::TYPE_FS) {
-			$this->log_destination = new WPRProtectLoggerFS_V665($name);
+	function __construct($name, $type = WPRProtectLogger_V669::TYPE_DB) {
+		if ($type == WPRProtectLogger_V669::TYPE_FS) {
+			$this->log_destination = new WPRProtectLoggerFS_V669($name);
 		} else {
-			$this->log_destination = new WPRProtectLoggerDB_V665($name);
+			$this->log_destination = new WPRProtectLoggerDB_V669($name);
 		}
 	}
 
