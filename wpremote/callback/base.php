@@ -29,7 +29,7 @@ class WPRCallbackBase {
 	}
 
 	public function base64Encode($data, $chunk_size) {
-		if ($chunk_size) {
+		if (is_int($chunk_size) && $chunk_size > 0) {
 			$out = "";
 			$len = strlen($data);
 			for ($i = 0; $i < $len; $i += $chunk_size) {

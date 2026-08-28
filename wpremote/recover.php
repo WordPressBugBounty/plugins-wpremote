@@ -151,7 +151,7 @@ if (!class_exists('WPRRecover')) :
 		}
 
 		public static function validate($key) {
-			return $key && strlen($key) >= 32;
+			return is_string($key) && strlen($key) >= 32;
 		}
 
 		public static function find($settings, $pubkey, $tag = null) {
