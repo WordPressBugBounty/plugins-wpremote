@@ -9,7 +9,7 @@ class WPRActLogCallback extends WPRCallbackBase {
 	public $db;
 	public $settings;
 
-	const ACTLOG_WING_VERSION = 1.0;
+	const ACTLOG_WING_VERSION = 1.2;
 
 	public function __construct($callback_handler) {
 		$this->db = $callback_handler->db;
@@ -30,13 +30,21 @@ class WPRActLogCallback extends WPRCallbackBase {
 			user_id int DEFAULT 0,
 			username text DEFAULT '',
 			request_id text DEFAULT '',
-			ip varchar(20) DEFAULT '',
-			event_type varchar(40) NOT NULL DEFAULT '',
+			ip varchar(50) DEFAULT '',
+			event_type varchar(60) NOT NULL DEFAULT '',
 			event_data mediumtext NOT NULL,
 			time int,
 			PRIMARY KEY (id)
 		) $charset_collate;";
 		return $db->createTable($query, BVWPActLog::$actlog_table, $usedbdelta);
+	}
+
+	# The server confirms this migration before enabling the modern capture policy.
+	public function alterActLogTable() {
+		$table = $this->db->getBVTable(BVWPActLog::$actlog_table);
+		$query = "ALTER TABLE $table MODIFY ip varchar(" . BVWPActLog::IP_MAX_LENGTH . ") DEFAULT '', " .
+			"MODIFY event_type varchar(" . BVWPActLog::EVENT_TYPE_MAX_LENGTH . ") NOT NULL DEFAULT ''";
+		return $this->db->alterBVTable($query, BVWPActLog::$actlog_table);
 	}
 
 	public function process($request) {
@@ -52,6 +60,9 @@ class WPRActLogCallback extends WPRCallbackBase {
 		case "createactlogtable":
 			$usedbdelta = array_key_exists('usedbdelta', $params);
 			$resp = array("status" => $this->createActLogTable($usedbdelta));
+			break;
+		case "alteractlogtable":
+			$resp = array("status" => $this->alterActLogTable());
 			break;
 		default:
 			$resp = false;

@@ -5,7 +5,7 @@ Plugin URI: https://wpremote.com
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>.
 Author: WP Remote
 Author URI: https://wpremote.com
-Version: 6.72
+Version: 6.76
 Network: True
 License: GPLv2 or later
 License URI: [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
@@ -104,14 +104,11 @@ if ($bvinfo->config != false) {
 require_once dirname( __FILE__ ) . '/php_error_monitoring/monitoring.php';
 WPRWPPHPErrorMonitoring::init();
 
-if ($bvinfo->hasValidDBVersion()) {
-	if ($bvinfo->isServiceActive('activity_log')) {
-		require_once dirname( __FILE__ ) . '/wp_actlog.php';
-		$bvconfig = $bvinfo->config;
-		$actlog = new BVWPActLog($bvdb, $bvsettings, $bvinfo, $bvconfig['activity_log']);
-		$actlog->init();
-	}
+require_once dirname( __FILE__ ) . '/wp_actlog.php';
+$actlog = new BVWPActLog($bvdb, $bvsettings, $bvinfo, $bvinfo->isActivityLogActive() ? $bvinfo->config['activity_log'] : array());
+$actlog->init();
 
+if ($bvinfo->hasValidDBVersion()) {
 	##MAINTENANCEMODULE##
 }
 
@@ -174,14 +171,14 @@ if (WPRHelper::getRawParam('REQUEST', 'bvplugname') == "wpremote") {
 		if ($bvinfo->isProtectModuleEnabled()) {
 			require_once dirname( __FILE__ ) . '/protect/protect.php';
 			//For backward compatibility.
-			WPRProtect_V672::$settings = new WPRWPSettings();
-			WPRProtect_V672::$db = new WPRWPDb();
-			WPRProtect_V672::$info = new WPRInfo(WPRProtect_V672::$settings);
+			WPRProtect_V676::$settings = new WPRWPSettings();
+			WPRProtect_V676::$db = new WPRWPDb();
+			WPRProtect_V676::$info = new WPRInfo(WPRProtect_V676::$settings);
 
-			add_action('wpr_clear_pt_config', array('WPRProtect_V672', 'uninstall'));
+			add_action('wpr_clear_pt_config', array('WPRProtect_V676', 'uninstall'));
 
 			if ($bvinfo->isActivePlugin()) {
-				WPRProtect_V672::init(WPRProtect_V672::MODE_WP);
+				WPRProtect_V676::init(WPRProtect_V676::MODE_WP);
 			}
 		}
 

@@ -2,15 +2,15 @@
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtectFWRuleEngine_V672')) :
+if (!class_exists('WPRProtectFWRuleEngine_V676')) :
 require_once dirname( __FILE__ ) . '/functions.php';
 
-class WPRProtectFWRuleEngine_V672 {
-	use WPRProtectFWRuleStringFunc_V672;
-	use WPRProtectFWRuleArrayFunc_V672;
-	use WPRProtectFWRuleMiscFunc_V672;
-	use WPRProtectFWRuleRequestFunc_V672;
-	use WPRProtectFWRuleWPFunc_V672;
+class WPRProtectFWRuleEngine_V676 {
+	use WPRProtectFWRuleStringFunc_V676;
+	use WPRProtectFWRuleArrayFunc_V676;
+	use WPRProtectFWRuleMiscFunc_V676;
+	use WPRProtectFWRuleRequestFunc_V676;
+	use WPRProtectFWRuleWPFunc_V676;
 
 	private $request;
 	private $variables;
@@ -25,7 +25,7 @@ class WPRProtectFWRuleEngine_V672 {
 	const MAX_ARRAY_KEYS_TO_TRAVERSE = 10000;
 	const WILDCARD_KEY = '*';
 	const FUNC_NAME_PREFIX = '_rf_';
-	const CONST_NAME_PREFIX = 'WPRProtectFWRule_V672::';
+	const CONST_NAME_PREFIX = 'WPRProtectFWRule_V676::';
 	const ALLOWED_EXT_CONSTANTS = [
 		'DOING_CRON'
 	];
@@ -52,7 +52,7 @@ class WPRProtectFWRuleEngine_V672 {
 	public function evaluate($rule) {
 		try {
 			return $this->executeStmt($rule->logic);
-		} catch (WPRProtectRuleError_V672 $e) {
+		} catch (WPRProtectRuleError_V676 $e) {
 			$this->error = $e;
 		}
 	}
@@ -123,7 +123,7 @@ class WPRProtectFWRuleEngine_V672 {
 
 	private function getValue($stmt) {
 		if (!is_array($stmt) || empty($stmt["type"])) {
-			throw new WPRProtectRuleError_V672(
+			throw new WPRProtectRuleError_V676(
 				$this->addExState("InvalidStatementError: Malformed value statement"));
 		}
 
@@ -132,7 +132,7 @@ class WPRProtectFWRuleEngine_V672 {
 		switch ($stmt["type"]) {
 		case "NUMBER":
 			if (!isset($stmt["value"]) || !is_int($stmt["value"])) {
-				throw new WPRProtectRuleError_V672(
+				throw new WPRProtectRuleError_V676(
 					$this->addExState("TypeError: Value is not a number")
 				);
 			}
@@ -140,7 +140,7 @@ class WPRProtectFWRuleEngine_V672 {
 			return $stmt["value"];
 		case "STRING":
 			if (!isset($stmt["value"]) || !is_string($stmt["value"])) {
-				throw new WPRProtectRuleError_V672(
+				throw new WPRProtectRuleError_V676(
 					$this->addExState("TypeError: Value is not a string")
 				);
 			}
@@ -148,7 +148,7 @@ class WPRProtectFWRuleEngine_V672 {
 			return $stmt["value"];
 		case "BOOL":
 			if (!isset($stmt["value"]) || !is_bool($stmt["value"])) {
-				throw new WPRProtectRuleError_V672(
+				throw new WPRProtectRuleError_V676(
 					$this->addExState("TypeError: Value is not a boolean")
 				);
 			}
@@ -156,7 +156,7 @@ class WPRProtectFWRuleEngine_V672 {
 			return $stmt["value"];
 		case "CONST":
 			if (!isset($stmt["value"]) || !is_string($stmt["value"])) {
-				throw new WPRProtectRuleError_V672(
+				throw new WPRProtectRuleError_V676(
 					$this->addExState("TypeError: Invalid constant name")
 				);
 			}
@@ -168,7 +168,7 @@ class WPRProtectFWRuleEngine_V672 {
 			}
 
 			if (!defined($name)) {
-				throw new WPRProtectRuleError_V672(
+				throw new WPRProtectRuleError_V676(
 					$this->addExState("TypeError: Undefined constant" . $stmt["value"])
 				);
 			}
@@ -176,7 +176,7 @@ class WPRProtectFWRuleEngine_V672 {
 			return constant($name);
 		case "ARRAY":
 			if (!isset($stmt["value"]) || !is_array($stmt["value"])) {
-				throw new WPRProtectRuleError_V672(
+				throw new WPRProtectRuleError_V676(
 					$this->addExState("TypeError: Value is not a array")
 				);
 			}
@@ -207,7 +207,7 @@ class WPRProtectFWRuleEngine_V672 {
 
 	private function executeStmt($stmt) {
 		if (!is_array($stmt) || empty($stmt["type"])) {
-			throw new WPRProtectRuleError_V672(
+			throw new WPRProtectRuleError_V676(
 				$this->addExState("InvalidStatementError: Malformed logic statement")
 			);
 		}
@@ -219,7 +219,7 @@ class WPRProtectFWRuleEngine_V672 {
 		switch ($stmt["type"]) {
 		case "AND":
 			if (empty($stmt["left_operand"]) || empty($stmt["right_operand"])) {
-				throw new WPRProtectRuleError_V672(
+				throw new WPRProtectRuleError_V676(
 					$this->addExState("InvalidOperandError: Malformed operand(s)")
 				);
 			}
@@ -228,7 +228,7 @@ class WPRProtectFWRuleEngine_V672 {
 			break;
 		case "OR":
 			if (empty($stmt["left_operand"]) || empty($stmt["right_operand"])) {
-				throw new WPRProtectRuleError_V672(
+				throw new WPRProtectRuleError_V676(
 					$this->addExState("InvalidOperandError: Malformed operand(s)")
 				);
 			}
@@ -237,7 +237,7 @@ class WPRProtectFWRuleEngine_V672 {
 			break;
 		case "NOT":
 			if (empty($stmt["value"])) {
-				throw new WPRProtectRuleError_V672(
+				throw new WPRProtectRuleError_V676(
 					$this->addExState("InvalidOperandError: Malformed operand")
 				);
 			}
@@ -246,7 +246,7 @@ class WPRProtectFWRuleEngine_V672 {
 			break;
 		case "FUNCTION":
 			if (empty($stmt["name"]) || !is_string($stmt["name"])) {
-				throw new WPRProtectRuleError_V672(
+				throw new WPRProtectRuleError_V676(
 					$this->addExState("InvalidFunctionName: Malformed name")
 				);
 			}
@@ -255,13 +255,13 @@ class WPRProtectFWRuleEngine_V672 {
 			$handler = array($this, $name);
 
 			if (!is_callable($handler)) {
-				throw new WPRProtectRuleError_V672(
+				throw new WPRProtectRuleError_V676(
 					$this->addExState("UndefinedFunctionCall: " . $stmt["name"])
 				);
 			}
 
 			if (!array_key_exists('args', $stmt) || !is_array($stmt['args'])) {
-				throw new WPRProtectRuleError_V672(
+				throw new WPRProtectRuleError_V676(
 					$this->addExState("InvalidArguments: Malformed args")
 				);
 			}
@@ -274,7 +274,7 @@ class WPRProtectFWRuleEngine_V672 {
 			$return_val = self::toAllowedType(call_user_func_array($handler, $args));
 			break;
 		default:
-			throw new WPRProtectRuleError_V672(
+			throw new WPRProtectRuleError_V676(
 				$this->addExState("UnknownOperation: -")
 			);
 		}
@@ -285,14 +285,14 @@ class WPRProtectFWRuleEngine_V672 {
 
 	private function processRuleFunctionParams($func_name, $args_cnt, $args, $required_params = 0, $param_types = array()) {
 		if (($args_cnt < $required_params)) {
-			throw new WPRProtectRuleError_V672(
+			throw new WPRProtectRuleError_V676(
 				$this->addExState("ArgumentCountError: Too few arguments for " . $func_name)
 			);
 		}
 
 		foreach ($param_types as $pos => $type) {
 			if (!is_int($pos)) {
-				throw new WPRProtectRuleError_V672(
+				throw new WPRProtectRuleError_V676(
 					$this->addExState("InvalidParamType: " . $pos)
 				);
 			}
@@ -300,35 +300,35 @@ class WPRProtectFWRuleEngine_V672 {
 			switch ($type) {
 			case "string":
 				if (!isset($args[$pos]) || !is_string($args[$pos])) {
-					throw new WPRProtectRuleError_V672(
+					throw new WPRProtectRuleError_V676(
 						$this->addExState("TypeError: " . $func_name . " param at " . $pos . " is not a string.")
 					);
 				}
 				break;
 			case 'integer':
 				if (!isset($args[$pos]) || !is_int($args[$pos])) {
-					throw new WPRProtectRuleError_V672(
+					throw new WPRProtectRuleError_V676(
 						$this->addExState("TypeError: " . $func_name . " param at " . $pos . " is not a integer.")
 					);
 				}
 				break;
 			case 'double':
 				if (!isset($args[$pos]) || !is_double($args[$pos])) {
-					throw new WPRProtectRuleError_V672(
+					throw new WPRProtectRuleError_V676(
 						$this->addExState("TypeError: " . $func_name . " param at " . $pos . " is not a double.")
 					);
 				}
 				break;
 			case 'boolean':
 				if (!isset($args[$pos]) || !is_bool($args[$pos])) {
-					throw new WPRProtectRuleError_V672(
+					throw new WPRProtectRuleError_V676(
 						$this->addExState("TypeError: " . $func_name . " param at " . $pos . " is not a boolean.")
 					);
 				}
 				break;
 			case 'array':
 				if (!isset($args[$pos]) || !is_array($args[$pos])) {
-					throw new WPRProtectRuleError_V672(
+					throw new WPRProtectRuleError_V676(
 						$this->addExState("TypeError: " . $func_name . " param at " . $pos . " is not an array.")
 					);
 				}
@@ -336,7 +336,7 @@ class WPRProtectFWRuleEngine_V672 {
 			case 'mixed':
 				break;
 			default:
-				throw new WPRProtectRuleError_V672(
+				throw new WPRProtectRuleError_V676(
 					$this->addExState("InvalidParamTypeError: Invalid type at " . $pos . " for " . $func_name)
 				);
 			}

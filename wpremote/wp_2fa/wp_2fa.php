@@ -6,6 +6,7 @@ require_once dirname(__FILE__) . '/utils.php';
 require_once dirname(__FILE__) . '/time_otp.php';
 require_once dirname(__FILE__) . '/time_otp_login.php';
 require_once dirname(__FILE__) . '/email_otp.php';
+require_once dirname(__FILE__) . '/email_otp_template.php';
 require_once dirname(__FILE__) . '/email_otp_sender.php';
 require_once dirname(__FILE__) . '/email_otp_login.php';
 

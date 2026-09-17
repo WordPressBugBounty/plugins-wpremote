@@ -6,7 +6,7 @@ Donate link: https://wpremote.com/
 Requires at least: 4.0
 Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 6.72
+Stable tag: 6.76
 License: GPLv2 or later
 License URI: [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -46,6 +46,10 @@ Having an account is necessary to use our service, and your email address serves
 In addition, we may use your email address to notify you about any changes or updates that we make to our service, as well as any new features or services that we may offer to help enhance your user experience.
 
 == CHANGELOG ==
+= 6.76 =
+* New: Added customizable plain-text email templates for WordPress email two-factor authentication sign-in codes.
+* Improvement: Enhanced activity logging with broader event coverage, configurable collection, and improved reliability.
+
 = 6.72 =
 * Tweak: Added validation checks for input params.
 

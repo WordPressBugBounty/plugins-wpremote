@@ -144,14 +144,14 @@ class WPRWatchCallback extends WPRCallbackBase {
 			if (array_key_exists('lp', $params)) {
 				require_once dirname( __FILE__ ) . '/../../protect/lp.php';
 				$lp_params = $params['lp'];
-				if (!isset($lp_params['bv_check_table']) || $db->isTablePresent($db->getBVTable(WPRProtectLP_V672::TABLE_NAME))) {
+				if (!isset($lp_params['bv_check_table']) || $db->isTablePresent($db->getBVTable(WPRProtectLP_V676::TABLE_NAME))) {
 					$limit = intval($lp_params['limit']);
 					$filter = $lp_params['filter'];
 					$offset = isset($lp_params['offset']) ? intval($lp_params['offset']) : 0;
-					$table = $db->getBVTable(WPRProtectLP_V672::TABLE_NAME);
+					$table = $db->getBVTable(WPRProtectLP_V676::TABLE_NAME);
 					$resp["lplogs"] = $this->getOffsetResetInfo($lp_params, $offset, $table);
 					if (empty($resp["lplogs"])) {
-						$db->deleteBVTableContent(WPRProtectLP_V672::TABLE_NAME, $lp_params['rmfilter']);
+						$db->deleteBVTableContent(WPRProtectLP_V676::TABLE_NAME, $lp_params['rmfilter']);
 						$resp["lplogs"] = $this->getData($table, $limit, $filter);
 					}
 				} else {
@@ -167,14 +167,14 @@ class WPRWatchCallback extends WPRCallbackBase {
 			if (array_key_exists('fw', $params)) {
 				require_once dirname( __FILE__ ) . '/../../protect/fw.php';
 				$fw_params = $params['fw'];
-				if (!isset($fw_params['bv_check_table']) || $db->isTablePresent($db->getBVTable(WPRProtectFW_V672::TABLE_NAME))) {
+				if (!isset($fw_params['bv_check_table']) || $db->isTablePresent($db->getBVTable(WPRProtectFW_V676::TABLE_NAME))) {
 					$limit = intval($fw_params['limit']);
 					$filter = $fw_params['filter'];
 					$offset = isset($fw_params['offset']) ? intval($fw_params['offset']) : 0;
-					$table = $db->getBVTable(WPRProtectFW_V672::TABLE_NAME);
+					$table = $db->getBVTable(WPRProtectFW_V676::TABLE_NAME);
 					$resp["fwlogs"] = $this->getOffsetResetInfo($fw_params, $offset, $table);
 					if (empty($resp["fwlogs"])){
-						$db->deleteBVTableContent(WPRProtectFW_V672::TABLE_NAME, $fw_params['rmfilter']);
+						$db->deleteBVTableContent(WPRProtectFW_V676::TABLE_NAME, $fw_params['rmfilter']);
 						$resp["fwlogs"] = $this->getData($table, $limit, $filter);
 					}
 				} else {
@@ -215,7 +215,9 @@ class WPRWatchCallback extends WPRCallbackBase {
 			if (array_key_exists('actlog', $params)) {
 				require_once dirname( __FILE__ ) . '/../../wp_actlog.php';
 				$actlog_params = $params['actlog'];
-				if (!isset($actlog_params['bv_check_table']) || $db->isTablePresent($db->getBVTable(BVWPActLog::$actlog_table))) {
+				if (!is_array($actlog_params) || !isset($actlog_params['limit'], $actlog_params['filter'], $actlog_params['rmfilter'])) {
+					$resp["actlogs"] = array("status" => "INVALID_PARAMETERS");
+				} elseif (!isset($actlog_params['bv_check_table']) || $db->isTablePresent($db->getBVTable(BVWPActLog::$actlog_table))) {
 					$table = $db->getBVTable(BVWPActLog::$actlog_table);
 					$limit = intval($actlog_params['limit']);
 					$filter = $actlog_params['filter'];

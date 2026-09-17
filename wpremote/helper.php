@@ -52,7 +52,8 @@ if (!class_exists('WPRHelper')) :
 			if (!is_string($pattern) || !is_string($subject)) {
 				return false;
 			}
-			return preg_match($pattern, $subject, $matches, $flags, $offset);
+			$result = @preg_match($pattern, $subject, $matches, $flags, $offset);
+			return $result === false ? false : $result;
 		}
 
 		# XNOTE - The below function assumes valid input

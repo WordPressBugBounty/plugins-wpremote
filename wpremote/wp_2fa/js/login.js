@@ -47,14 +47,15 @@
 		loginForm.addEventListener('submit', handleSubmit);
 
 		function handleSubmit(event) {
+			var formData = new FormData(loginForm);
+			var isResendRequest = formData.get('twofa_resend') === '1';
+
 			event.preventDefault();
 			if (requestInFlight) return;
 			requestInFlight = true;
 			showProgressBar();
 			disableLoginButton();
 
-			var formData = new FormData(loginForm);
-			var isResendRequest = formData.get('twofa_resend') === '1';
 			if (isResendRequest) formData.delete('twofa_code');
 			clearResendStatus();
 
@@ -93,6 +94,10 @@
 					}
 					return;
 				}
+				if (data.success) {
+					proceedWithLogin();
+					return;
+				}
 
 				if (data.html) {
 					handleHtmlResponse(data.html, data.responseUrl, data.redirected);
@@ -122,12 +127,22 @@
 			var doc = parser.parseFromString(html, 'text/html');
 			var errorElement = doc.getElementById('login_error');
 			if (errorElement) {
-				displayError(errorElement.innerText.trim());
-			} else if (redirected && responseUrl) {
+				displayError(errorElement.textContent.trim());
+			} else if (isTwoFAEnabled && redirected && responseUrl) {
 				window.location.assign(responseUrl);
-			} else {
+			} else if (isTwoFAEnabled) {
 				displayError('An unknown error occurred');
+			} else {
+				proceedWithLogin();
 			}
+		}
+
+		function proceedWithLogin() {
+			loginForm.removeEventListener('submit', handleSubmit);
+			hideProgressBar();
+			enableLoginButton();
+			requestInFlight = false;
+			loginForm.submit();
 		}
 
 		function showTwoFAField(data) {
