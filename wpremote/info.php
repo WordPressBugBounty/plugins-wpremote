@@ -11,7 +11,7 @@ if (!class_exists('WPRInfo')) :
 		public $ip_header_option = 'wpripheader';
 		public $brand_option = 'bv_whitelabel_infos';
 		public $wp_lp_whitelabel_option = 'wprLpWhitelabelConf';
-		public $version = '6.76';
+		public $version = '6.81';
 		public $webpage = 'https://wpremote.com';
 		public $appurl = 'https://app.wpremote.com';
 		public $slug = 'wpremote/plugin.php';
@@ -240,11 +240,15 @@ if (!class_exists('WPRInfo')) :
 		}
 
 		public function info() {
-			return array(
+			$info = array(
 				"bvversion" => $this->version,
 				"sha1" => "true",
 				"plugname" => $this->plugname
 			);
+			if (isset($GLOBALS['bv_mu_versions'][$this->plugname])) {
+				$info['mu_version'] = $GLOBALS['bv_mu_versions'][$this->plugname];
+			}
+			return $info;
 		}
 	}
 endif;

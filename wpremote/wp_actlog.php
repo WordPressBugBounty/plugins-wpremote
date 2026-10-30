@@ -530,7 +530,9 @@ if (!class_exists('BVWPActLog')) :
 				return;
 			$type = $data['type'];
 			if ($data['action'] === 'update') {
-				if (isset($upgrader->skin) && $upgrader->skin instanceof Automatic_Upgrader_Skin) return;
+				# Ajax admin updates are manual even though their skin extends the automatic skin.
+				if (isset($upgrader->skin) && $upgrader->skin instanceof Automatic_Upgrader_Skin &&
+					!($upgrader->skin instanceof WP_Ajax_Upgrader_Skin)) return;
 				$files = isset($data[$type]) ? array($data[$type]) : (isset($data[$type . 's']) ? (array) $data[$type . 's'] : array());
 				foreach ($files as $file) {
 					if ($this->is_relative_package_path($file)) $this->completed_package($type, $file);

@@ -7,6 +7,8 @@ if (!class_exists('WPRCallbackRequest')) :
 		public $method;
 		public $wing;
 		public $is_afterload;
+		public $is_update_core_page;
+		public $pagenow;
 		public $is_aftershutdown;
 		public $keep_page_output;
 		public $is_admin_ajax;
@@ -38,6 +40,10 @@ if (!class_exists('WPRCallbackRequest')) :
 			$this->wing = $in_params['wing'];
 			$this->method = $in_params['bvMethod'];
 			$this->is_afterload = array_key_exists('afterload', $in_params);
+			$this->is_update_core_page = array_key_exists('updtcrpge', $in_params);
+			$allowed = array('update-core.php', 'plugins.php', 'themes.php', 'update.php');
+			$pagenow = isset($in_params['pagenow']) && is_string($in_params['pagenow']) ? $in_params['pagenow'] : null;
+			$this->pagenow = in_array($pagenow, $allowed, true) ? $pagenow : null;
 			$this->is_aftershutdown = array_key_exists('aftershutdown', $in_params);
 			$this->keep_page_output = $this->is_aftershutdown &&
 				array_key_exists('keeppageoutput', $in_params);

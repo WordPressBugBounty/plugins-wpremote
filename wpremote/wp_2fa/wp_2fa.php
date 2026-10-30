@@ -68,7 +68,7 @@ class WPRWP2FA {
 
 	public function enqueue_login_assets() {
 		wp_enqueue_style('WPR-wp-2fa-login', plugin_dir_url(__FILE__) . 'css/login.css', array(), '1.4');
-		wp_enqueue_script('WPR-wp-2fa-login', plugin_dir_url(__FILE__) . 'js/login.js', array(), '1.4', true);
+		wp_enqueue_script('WPR-wp-2fa-login', plugin_dir_url(__FILE__) . 'js/login.js', array(), '1.5', true);
 	}
 
 	public function authenticate($user, $username, $password) {

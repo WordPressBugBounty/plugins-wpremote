@@ -52,16 +52,18 @@
 
 			event.preventDefault();
 			if (requestInFlight) return;
+
 			requestInFlight = true;
 			showProgressBar();
 			disableLoginButton();
 
 			if (isResendRequest) formData.delete('twofa_code');
+
 			clearResendStatus();
 
 			fetch(loginForm.action, {
 				method: 'POST',
-				body: formData,
+				body: new URLSearchParams(formData),
 				credentials: 'same-origin'
 			}).then(function (response) {
 				return response.text().then(function (responseText) {

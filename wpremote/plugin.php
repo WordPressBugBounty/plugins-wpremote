@@ -5,7 +5,7 @@ Plugin URI: https://wpremote.com
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>.
 Author: WP Remote
 Author URI: https://wpremote.com
-Version: 6.76
+Version: 6.81
 Network: True
 License: GPLv2 or later
 License URI: [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
@@ -64,12 +64,18 @@ register_deactivation_hook(__FILE__, array($wp_action, 'deactivate'));
 
 add_action('wp_footer', array($wp_action, 'footerHandler'), 100);
 add_action('wpr_clear_bv_services_config', array($wp_action, 'clear_bv_services_config'));
+add_action('wpr_clear_mu_plugin', array($wp_action, 'clear_mu_plugin'));
 
 ##SOADDUNINSTALLACTION##
 
 ##DISABLE_OTHER_OPTIMIZATION_PLUGINS##
 
-##WPCLIMODULE##
+if (defined('WP_CLI') && WP_CLI) {
+		require_once dirname( __FILE__ ) . '/wp_cli.php';
+		$wp_cli = new WPRWPCli($bvsettings, $bvinfo, $bvsiteinfo, $bvapi);
+		WP_CLI::add_command("wpremote", $wp_cli);
+}
+
 
 if (is_admin()) {
 	require_once dirname( __FILE__ ) . '/wp_admin.php';
@@ -151,8 +157,16 @@ if (WPRHelper::getRawParam('REQUEST', 'bvplugname') == "wpremote") {
 				$response->terminate($request->corruptedParamsResp());
 			}
 			$request->params = $params;
+			if (isset($request->pagenow)) {
+				$GLOBALS['pagenow'] = $request->pagenow;
+				if ($request->is_admin_ajax) {
+					$_SERVER['PHP_SELF'] = dirname($_SERVER['PHP_SELF']) . '/' . $request->pagenow;
+				}
+			}
 			$callback_handler = new WPRCallbackHandler($bvdb, $bvsettings, $bvsiteinfo, $request, $account, $response);
-			if ($request->is_aftershutdown) {
+			if ($request->is_update_core_page) {
+				add_action('load-update-core.php', array($callback_handler, 'execute'), PHP_INT_MAX);
+			} else if ($request->is_aftershutdown) {
 				$callback_handler->deferExecutionUntilShutdown();
 			} else if ($request->is_afterload) {
 				add_action('wp_loaded', array($callback_handler, 'execute'));
@@ -171,14 +185,14 @@ if (WPRHelper::getRawParam('REQUEST', 'bvplugname') == "wpremote") {
 		if ($bvinfo->isProtectModuleEnabled()) {
 			require_once dirname( __FILE__ ) . '/protect/protect.php';
 			//For backward compatibility.
-			WPRProtect_V676::$settings = new WPRWPSettings();
-			WPRProtect_V676::$db = new WPRWPDb();
-			WPRProtect_V676::$info = new WPRInfo(WPRProtect_V676::$settings);
+			WPRProtect_V681::$settings = new WPRWPSettings();
+			WPRProtect_V681::$db = new WPRWPDb();
+			WPRProtect_V681::$info = new WPRInfo(WPRProtect_V681::$settings);
 
-			add_action('wpr_clear_pt_config', array('WPRProtect_V676', 'uninstall'));
+			add_action('wpr_clear_pt_config', array('WPRProtect_V681', 'uninstall'));
 
 			if ($bvinfo->isActivePlugin()) {
-				WPRProtect_V676::init(WPRProtect_V676::MODE_WP);
+				WPRProtect_V681::init(WPRProtect_V681::MODE_WP);
 			}
 		}
 

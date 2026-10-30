@@ -43,6 +43,7 @@ if (!class_exists('WPRWPAction')) :
 			do_action('wpr_clear_dynsync_config');
 			##CLEARCACHECONFIG##
 			do_action('wpr_clear_bv_services_config');
+			do_action('wpr_clear_mu_plugin');
 			do_action('wpr_clear_actlog_config');
 			do_action('wpr_clear_wp_2fa_config');
 			do_action('wpr_remove_bv_preload_include');
@@ -52,6 +53,16 @@ if (!class_exists('WPRWPAction')) :
 		public function clear_bv_services_config() {
 			$this->settings->deleteOption($this->bvinfo->services_option_name);
 		}
+
+		public function clear_mu_plugin() {
+			if (defined('WPMU_PLUGIN_DIR')) {
+				$mu_plugin_file = WPMU_PLUGIN_DIR . '/0-wpremote-mu-plugin.php';
+				if (file_exists($mu_plugin_file)) {
+					@unlink($mu_plugin_file);
+				}
+			}
+		}
+
 
 		public function clear_wp_2fa_config() {
 			$meta_keys = array('wpr_2fa_enabled', 'wpr_2fa_secret', 'wpr_2fa_method', 'wpr_2fa_email_challenge', 'wpr_2fa_email_rate', 'wpr_2fa_attempts');
