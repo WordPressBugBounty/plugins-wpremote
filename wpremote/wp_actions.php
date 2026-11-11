@@ -84,6 +84,25 @@ if (!class_exists('WPRWPAction')) :
 			}
 		}
 
+		public function enqueueBrokenLinkHighlight() {
+			// Read-only visual aid: this flag grants no access and executes no callback.
+			if (!in_array('wpr', array('bv', 'mc', 'wpr'), true) ||
+				WPRHelper::getRawParam('GET', 'bv-blc') !== '1' || is_admin() || is_feed() || (function_exists('is_embed') && is_embed())) {
+				return;
+			}
+
+			// A cache that drops unknown query parameters from its key must not store this
+			// page and serve the overlay to every visitor.
+			if (!headers_sent()) {
+				header('Cache-Control: no-store, max-age=0');
+			}
+			// The selection travels in the URL fragment, which browsers never send. This
+			// request carries no input, so there is nothing here to read, decode or echo.
+			// Share handles across plugin families so only one helper is loaded.
+			wp_enqueue_style('blogvault-blc-highlight', plugins_url('broken_link_checker/highlight.css', __FILE__), array(), '1.3.1');
+			wp_enqueue_script('blogvault-blc-highlight', plugins_url('broken_link_checker/highlight.js', __FILE__), array(), '1.3.1', true);
+		}
+
 		private function process_deactivation_feedback(&$info) {
 			//phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			if (!isset($_GET['bv_deactivation_assets']) || !is_string($_GET['bv_deactivation_assets'])) {

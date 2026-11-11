@@ -169,12 +169,22 @@ if (!class_exists('WPRCallbackHandler')) :
 				require_once dirname( __FILE__ ) . '/wings/security.php';
 				$module = new WPRSecurityCallback($this);
 				break;
+			case 'links':
+				// Only the BlogVault, MalCare and WP Remote plugins carry this wing; the rest answer Bad Command.
+				$links_wing = dirname( __FILE__ ) . '/wings/links.php';
+				if (!file_exists($links_wing)) {
+					$module = null;
+					break;
+				}
+				require_once $links_wing;
+				$module = new WPRLinksCallback($this);
+				break;
 			default:
 				require_once dirname( __FILE__ ) . '/wings/misc.php';
 				$module = new WPRMiscCallback($this);
 				break;
 			}
-			$resp = $module->process($this->request);
+			$resp = $module ? $module->process($this->request) : false;
 			if ($resp === false) {
 				$resp = array(
 					"statusmsg" => "Bad Command",

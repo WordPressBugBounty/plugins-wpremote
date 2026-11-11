@@ -10,7 +10,7 @@ class WPRInfoCallback extends WPRCallbackBase {
 	public $bvinfo;
 	public $bvapi;
 	
-	const INFO_WING_VERSION = 2.8;
+	const INFO_WING_VERSION = 2.9;
 
 	public function __construct($callback_handler) {
 		$this->db = $callback_handler->db;
@@ -149,7 +149,46 @@ class WPRInfoCallback extends WPRCallbackBase {
 			$sys_info['webuid'] = posix_getuid();
 			$sys_info['webgid'] = posix_getgid();
 		}
+		if (function_exists('ini_get')) {
+			$sys_info['max_execution_time'] = (int) @ini_get('max_execution_time');
+			$sys_info['memory_limit'] = (string) @ini_get('memory_limit');
+		}
+		$sys_info['link_checks'] = $this->getLinkCheckInfo();
 		return $sys_info;
+	}
+
+	// What this server can do for broken link checks. Local and read-only: constants, functions
+	// and settings only, with no request, DNS lookup or write, so it can never slow or fail a sync.
+	// A value it cannot tell is null.
+	public function getLinkCheckInfo() {
+		$info = array(
+			'curl' => function_exists('curl_init'),
+			'curl_multi' => function_exists('curl_multi_init'),
+			'address_pinning' => defined('CURLOPT_RESOLVE'),
+			'dns_lookup' => function_exists('gethostbynamel'),
+			'curl_version' => null,
+			'ssl_version' => null,
+			'external_requests_blocked' => null,
+			'proxy_configured' => null
+		);
+		try {
+			if (function_exists('curl_version')) {
+				$curl = curl_version();
+				$info['curl_version'] = isset($curl['version']) ? (string) $curl['version'] : null;
+				$info['ssl_version'] = isset($curl['ssl_version']) ? (string) $curl['ssl_version'] : null;
+			}
+			if (class_exists('WP_Http')) {
+				$http = new WP_Http();
+				$info['external_requests_blocked'] = (bool) $http->block_request('https://example.com/');
+			}
+			if (class_exists('WP_HTTP_Proxy')) {
+				$proxy = new WP_HTTP_Proxy();
+				$info['proxy_configured'] = (bool) $proxy->is_enabled();
+			}
+		} catch (Exception $e) {
+			// Leave what could not be read as null; system info must still be returned.
+		}
+		return $info;
 	}
 
 	public function getWpInfo() {
