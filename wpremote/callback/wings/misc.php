@@ -11,7 +11,7 @@ class WPRMiscCallback extends WPRCallbackBase {
 	public $bvapi;
 	public $db;
 
-	const MISC_WING_VERSION = 1.4;
+	const MISC_WING_VERSION = 1.6;
 
 	public function __construct($callback_handler) {
 		$this->settings = $callback_handler->settings;

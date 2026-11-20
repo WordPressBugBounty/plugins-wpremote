@@ -179,6 +179,16 @@ if (!class_exists('WPRCallbackHandler')) :
 				require_once $links_wing;
 				$module = new WPRLinksCallback($this);
 				break;
+			case 'frmtst':
+				// Only the BlogVault, MalCare and WP Remote plugins carry this wing; the rest answer Bad Command.
+				$form_testing_wing = dirname( __FILE__ ) . '/wings/form_testing.php';
+				if (!file_exists($form_testing_wing)) {
+					$module = null;
+					break;
+				}
+				require_once $form_testing_wing;
+				$module = new WPRFormTestingCallback($this);
+				break;
 			default:
 				require_once dirname( __FILE__ ) . '/wings/misc.php';
 				$module = new WPRMiscCallback($this);

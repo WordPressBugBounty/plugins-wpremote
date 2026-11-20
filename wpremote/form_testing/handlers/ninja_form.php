@@ -23,13 +23,16 @@ class BVNinjaFormHandler {
 	}
 
 	public function bypassCaptcha() {
+		// Field captchas (reCAPTCHA v2, hCaptcha, Turnstile, the spam question): a null type skips the field's validation.
 		add_filter('ninja_forms_pre_validate_field_settings', function ($field_settings) {
-			if (isset($field_settings['type']) && in_array($field_settings['type'], ['recaptcha', 'spam'], true)) {
+			$captcha_types = array('recaptcha', 'recaptcha_v3', 'hcaptcha', 'turnstile', 'spam');
+			if (isset($field_settings['type']) && in_array($field_settings['type'], $captcha_types, true)) {
 				$field_settings['type'] = null;
 			}
 			return $field_settings;
 		}, PHP_INT_MAX);
 
+		// reCAPTCHA v3 is a form action (type "recaptcha") that verifies the injected token.
 		add_filter('ninja_forms_run_action_type_recaptcha', '__return_false', PHP_INT_MAX);
 	}
 

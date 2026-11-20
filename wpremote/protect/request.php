@@ -2,8 +2,8 @@
 
 if (!defined('ABSPATH') && !defined('MCDATAPATH')) exit;
 
-if (!class_exists('WPRProtectRequest_V683')) :
-class WPRProtectRequest_V683 {
+if (!class_exists('WPRProtectRequest_V685')) :
+class WPRProtectRequest_V685 {
 	public $ip;
 	public $host = '';
 	public $uri;
@@ -19,8 +19,8 @@ class WPRProtectRequest_V683 {
 	public $raw_body = '';
 	public $files;
 	public $respcode;
-	public $status = WPRProtectRequest_V683::STATUS_ALLOWED;
-	public $category = WPRProtectRequest_V683::CATEGORY_NORMAL;
+	public $status = WPRProtectRequest_V685::STATUS_ALLOWED;
+	public $category = WPRProtectRequest_V685::CATEGORY_NORMAL;
 
 	public $wp_user;
 
@@ -59,7 +59,7 @@ class WPRProtectRequest_V683 {
 	const CATEGORY_GLOBAL_BOT_BLOCKED = 90;
 
 	public function __construct($ip_header, $config) {
-		$this->ip = WPRProtectUtils_V683::getIP($ip_header);
+		$this->ip = WPRProtectUtils_V685::getIP($ip_header);
 		$this->timestamp = time();
 		$this->get_params = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$this->cookies = $_COOKIE;
@@ -141,15 +141,15 @@ class WPRProtectRequest_V683 {
 
 	public static function blacklistedCategories() {
 		return array(
-			WPRProtectRequest_V683::CATEGORY_BOT_BLOCKED,
-			WPRProtectRequest_V683::CATEGORY_COUNTRY_BLOCKED,
-			WPRProtectRequest_V683::CATEGORY_USER_BLACKLISTED,
-			WPRProtectRequest_V683::CATEGORY_GLOBAL_BOT_BLOCKED
+			WPRProtectRequest_V685::CATEGORY_BOT_BLOCKED,
+			WPRProtectRequest_V685::CATEGORY_COUNTRY_BLOCKED,
+			WPRProtectRequest_V685::CATEGORY_USER_BLACKLISTED,
+			WPRProtectRequest_V685::CATEGORY_GLOBAL_BOT_BLOCKED
 		);
 	}
 
 	public static function whitelistedCategories() {
-		return array(WPRProtectRequest_V683::CATEGORY_WHITELISTED);
+		return array(WPRProtectRequest_V685::CATEGORY_WHITELISTED);
 	}
 
 	public function setRespCode($code) {
@@ -487,7 +487,7 @@ class WPRProtectRequest_V683 {
 			return;
 		}
 
-		$_json_params = WPRProtectUtils_V683::safeDecodeJSON(
+		$_json_params = WPRProtectUtils_V685::safeDecodeJSON(
 			$this->raw_body,
 			true,
 			$this->max_json_decode_depth

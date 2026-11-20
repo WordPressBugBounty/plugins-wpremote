@@ -23,7 +23,23 @@ class BVContactForm7Handler {
 	}
 
 	private function bypassCaptcha() {
+		// Spam check: reCAPTCHA v3, Turnstile, Akismet, disallowed list.
 		add_filter('wpcf7_skip_spam_check', '__return_true', PHP_INT_MAX);
+
+		// Quiz and Really Simple CAPTCHA are validated per field instead. Their answers are tied to a
+		// random question or a single-use image, so unhook their validators just before they run.
+		add_filter('wpcf7_validate_quiz', array($this, 'skipQuizValidation'), 9, 1);
+		add_filter('wpcf7_validate_captchar', array($this, 'skipCaptchaValidation'), 9, 1);
+	}
+
+	public function skipQuizValidation($result) {
+		remove_filter('wpcf7_validate_quiz', 'wpcf7_quiz_validation_filter', 10);
+		return $result;
+	}
+
+	public function skipCaptchaValidation($result) {
+		remove_filter('wpcf7_validate_captchar', 'wpcf7_captcha_validation_filter', 10);
+		return $result;
 	}
 
 	private function bypassEmail() {

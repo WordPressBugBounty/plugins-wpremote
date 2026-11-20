@@ -6,7 +6,7 @@ Donate link: https://wpremote.com/
 Requires at least: 4.0
 Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 6.83
+Stable tag: 6.85
 License: GPLv2 or later
 License URI: [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -46,6 +46,12 @@ Having an account is necessary to use our service, and your email address serves
 In addition, we may use your email address to notify you about any changes or updates that we make to our service, as well as any new features or services that we may offer to help enhance your user experience.
 
 == CHANGELOG ==
+= 6.85 =
+* Improvement: Form test cleanup now also removes uploaded files, and checks each item against the test's record before deleting it.
+* Improvement: Form tests now confirm what a test submission did (entry saved, notification email, integrations) without delivering the email, and remove the test entry afterwards.
+* Improvement: Form tests support more form plugins, including their CAPTCHA and anti-spam checks.
+* Improvement: Hardened the handling of form test requests.
+
 = 6.83 =
 * New: Broken Link Checker: checks your links from your own site, and highlights the broken ones on the page when you open it from the dashboard.
 

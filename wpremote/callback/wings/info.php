@@ -10,7 +10,7 @@ class WPRInfoCallback extends WPRCallbackBase {
 	public $bvinfo;
 	public $bvapi;
 	
-	const INFO_WING_VERSION = 2.9;
+	const INFO_WING_VERSION = 3.0;
 
 	public function __construct($callback_handler) {
 		$this->db = $callback_handler->db;
@@ -220,6 +220,7 @@ class WPRInfoCallback extends WPRCallbackBase {
 			'themedir' => get_stylesheet_directory(),
 			'templatedir' => get_template_directory(),
 			'dbcharset' => defined('DB_CHARSET') ? DB_CHARSET : null,
+			'mysql_client_flags' => defined('MYSQL_CLIENT_FLAGS') ? MYSQL_CLIENT_FLAGS : null,
 			'disallow_file_edit' => defined('DISALLOW_FILE_EDIT'),
 			'disallow_file_mods' => defined('DISALLOW_FILE_MODS'),
 			'custom_users' => defined('CUSTOM_USER_TABLE') ? CUSTOM_USER_TABLE : null,
